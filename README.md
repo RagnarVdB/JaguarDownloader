@@ -1,0 +1,2 @@
+# Yt_download
+This is a gui for the cli downloader too youtube-dl. The gui is a flask web app, run locally using [flaskwebgui](https://github.com/ClimenteA/flaskwebgui). The front-end is made with Vue.js.
