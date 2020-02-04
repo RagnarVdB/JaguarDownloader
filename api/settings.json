@@ -1,0 +1,14 @@
+{
+  "settings": {
+    "id1": {
+      "format": ["xxx + yyy"],
+      "ext": "mp4",
+      "convert": false
+    },
+    "id2": {
+      "formats": ["xxx", "yyy"],
+      "convert": true
+    }
+  },
+  "path": "C:/users/ragnar/desktop"
+}
