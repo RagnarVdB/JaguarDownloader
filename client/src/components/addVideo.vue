@@ -1,14 +1,24 @@
 <template>
     <div id="addVideo">
+        <form @submit="addVideo">
         <label for="add video">ADD URL</label>
-        <input type="text" id="url_input">
-        <button>ENTER</button>
+        <input type="text" id="url_input" placeholder="enter url" v-model="url">
+        <input class = "button" type="submit" @click="$emit('add-video', 'test')" value="enter"/>
+        </form>
     </div>
 </template>
 
 <script>
 export default {
     name: "addVideo",
+    methods: {
+        addVideo(event){
+            event.preventDefault()
+            const newVideo = {}
+            this.$emit('add-video', newVideo)
+            this.url = ""
+        }
+    }
 }
 </script>
 
@@ -18,10 +28,15 @@ export default {
         height: 50px;
         margin-top: 15px;
         background-color: black;
+        margin-bottom: 40px;
+
+    }
+    form{
+        width: 100%;
+        height: 100%;
         display: flex;
         flex-direction: row;
         align-items: center;
-        margin-bottom: 40px;
     }
     label{
         color: white;
@@ -36,16 +51,20 @@ export default {
         border: 1px solid #707070;
         color: white;
     }
-    button{
+    .button{
         border: 1px solid white;
         background-color: transparent;
         color: white;
-        border-radius: 10px;
+        border-radius: 12px;
         padding: 5px;
         margin-left: 20px;
         margin-right: 20px;
         width: 90px;
         font-size: 0.8rem;
+    }
+    .button:hover{
+        background-color: white;
+        color: black;
     }
     
 </style>

@@ -1,20 +1,24 @@
 <template>
-    <div id="item">
+    <div id="item" tabindex="-1" @focus="$emit('current', video)">
         <p id="title">{{video.title}}</p>
         <div id="progress">
             <div v-bind:style="{width: video.progress + '%'}"></div>
         </div>
         <p id="ext">{{video.settings.ext}}</p>
         <p id="quality">{{video.settings.quality}}</p>
+        <button @click="$emit('del-video', video.id)">    
+            <img src="../assets/delete.svg"/>
+        </button>
     </div>
 </template>
 
 <script>
 export default {
     name: "videoItem",
-    props: ["video"]
+    props: ["video"],
 }
 </script>
+
 <style scoped>
     #item{
         width: 97%;
@@ -24,13 +28,21 @@ export default {
         display: flex;
         flex-direction: row;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
+    }
+    #item:hover, #item:focus{
+        outline: 2px solid rgb(148, 148, 148);
+    }
+    #item > p{
+        margin-left: 15px;
+        font-size: 0.9rem;
+        width: 80px;
     }
     #title{
         width: 200px;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-height: 45px; 
+        max-height: 42px; 
     }
     #progress{
         width: 100%;
@@ -44,11 +56,17 @@ export default {
         height: 100%;
         border-radius: 13px;
     }
-    #item > p{
-        margin-left: 15px;
-    }
     #quality, #ext{
         margin-right: 15px;
         width: 60px;
+    }
+    #item button{
+        margin-right: 15px;
+        background: none;
+        border: none;
+    }
+
+    #item button img{
+        width: 18px;
     }
 </style>

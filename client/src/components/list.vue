@@ -1,8 +1,8 @@
 <template>
     <div id="list">
-        <addVideo/>
+        <addVideo v-on:add-video="$emit('add-video', newVideo)"/>
         <div id="items" v-for="video in videos" :key=video.id>
-            <videoItem v-bind:video="video"/>
+            <videoItem v-bind:video="video" v-on:current="$emit('change', video)" v-on:del-video="$emit('del-video', video.id)" />
         </div>
     </div>
 </template>
