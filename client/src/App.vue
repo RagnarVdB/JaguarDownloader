@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <list v-bind:videos = "videos" v-on:change="changeCurrent" v-on:del-video="deleteVideo" v-on:add-video="addVideo"/>
+    <list v-bind:videos = "videos" ref="listRef" v-on:change="changeCurrent" v-on:del-video="deleteVideo" v-on:add-video="addVideo"/>
     <settings v-bind:video = "current" />
     <general v-bind:folder = "folder"/>
   </div>
@@ -20,36 +20,7 @@ export default {
   },
   data(){
     return{
-      videos: [
-        {
-          id: 1,
-          title: "Video1",
-          channel: "Channel1",
-          date: "30/01/2020",
-          thumbnail: "../assets/thumbnail.jpg",
-          progress: "50",
-          settings: {
-            ext: "mkv",
-            type: "video",
-            quality: "1080p"
-          }
-        },
-        {
-          id: 2,
-          title: "A very very very veeeeeeery long title",
-          channel: "Channel2",
-          date: "30/01/2020",
-          thumbnail: "../assets/thumnail.jpg",
-          progress: "30",
-          settings: {
-            ext: "m4a",
-            type: "audio",
-            quality: "256kbps"
-          }
-        }
-      ],
-      current: {},
-      folder: "C:/users/"
+      videos: []
     }
   },
   methods: {
@@ -59,8 +30,27 @@ export default {
     deleteVideo(id){
       this.videos = this.videos.filter(video => video.id !== id);
     },
-    addVideo(newVideo){
-      this.videos = [...this.videos, newVideo]
+    addVideo(newVideos){
+      console.log(newVideos)
+      if (newVideos.length !== 0){
+        newVideos = newVideos.filter((newVideo) => {
+        let video;
+        for (video of this.videos){
+          if (video.id === newVideo.id){
+            console.log('deleted ' + video.id);
+            return false;
+            }
+          }
+        return true
+        });
+
+        this.videos = newVideos.concat(this.videos);
+        this.current = newVideos[0];
+        this.$refs.listRef.setFocus();
+        this.$refs.listRef.invalid(true);
+      } else {
+        this.$refs.listRef.invalid(false);
+      }
     }
   }
 }

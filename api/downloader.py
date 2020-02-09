@@ -37,11 +37,17 @@ class Downloader():
             elif form["format_note"] in AUDIO_FORMATS:
                 form["type"] = "audio"
                 formats.append(form)
+        date_info = self.info["upload_date"]
+        date = date_info[:4] + "/" + date_info[4:6] + "/" + date_info[6:]
+
         return {
             "id": self.info["id"],
             "title": self.info["title"],
-            "uploader": self.info["uploader"],
+            "channel": self.info["uploader"],
             "thumbnail": self.info["thumbnail"],
+            "date": date,
+            "progress": 0,
+            "settings": {},
             "formats": formats
         }
 

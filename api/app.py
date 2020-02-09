@@ -1,14 +1,15 @@
 from flask import Flask, jsonify, request
 from downloader import Downloader, get_info
-
+from flask_cors import CORS
 app = Flask(__name__)
-
+CORS(app)
 videos = []
 
 
-@app.route("/add", methods=["GET"])
+@app.route("/add", methods=["POST"])
 def add_url():
     url = request.json["url"]
+    print(url)
     infos = get_info(url)
     sent_videos = []
     for info in infos:
