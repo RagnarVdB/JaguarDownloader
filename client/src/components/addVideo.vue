@@ -47,13 +47,15 @@ export default {
           el.settings = {
             ext: "mkv",
             type: "video",
-            quality: "480p"
+            quality: "480p",
+            tag: false,
+            tags: {}
           };
+          el.filesize = "unknown";
           el.resolutions = new Array;
           el.mp4_resolutions = new Array;
           el.formats.forEach(format => {
             if (allowedFormats.includes(format.format_note) && !el.resolutions.includes(format.format_note)){
-              console.log(format.format_note);
               el.resolutions.push(format.format_note);
             }
             if (format.ext === 'mp4' && allowedFormats.includes(format.format_note)){
