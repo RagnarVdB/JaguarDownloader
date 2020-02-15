@@ -54,6 +54,8 @@ export default {
           el.filesize = "unknown";
           el.resolutions = new Array;
           el.mp4_resolutions = new Array;
+          el.status = "ready to download";
+          el.progress = 0;
           el.formats.forEach(format => {
             if (allowedFormats.includes(format.format_note) && !el.resolutions.includes(format.format_note)){
               el.resolutions.push(format.format_note);

@@ -4,7 +4,7 @@
       v-bind:videos="videos" 
       ref="listRef" v-on:change="changeCurrent" v-on:del-video="deleteVideo" v-on:add-video="addVideo"/>
     <settings v-bind:video="current" v-on:update-settings="update_settings"/>
-    <general v-bind:folder="folder" v-on:start="start"/>
+    <general v-bind:folder="folder" v-bind:status="status" v-on:start="start"/>
   </div>
 </template>
 
@@ -24,7 +24,8 @@ export default {
     return{
       videos: [],
       folder: "C:/users",
-      current: '' //currently selected video
+      current: '', //currently selected video
+      status: 'ready to download'
     }
   },
   methods: {
@@ -78,11 +79,16 @@ export default {
     connect: function(){
       console.log('socket connected!')
     },
-    progress: function(percentage){
-      for (let id in percentage){
+    progress: function(data){
+      console.log('received!')
+      for (let id in data){
         this.videos.forEach((video) => {
           if (video.id === id){
-            video.progress = percentage[id];
+            video.progress = data[id].progress;
+            this.status = data[id].status;
+            if (data[id].status === 'FINISHED!'){
+              this.deleteVideo(id)
+            }
           }
         })
       }

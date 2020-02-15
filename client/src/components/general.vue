@@ -1,8 +1,14 @@
 <template>
   <div id="general">
-    <p>location:</p>
-    <p class="link">{{folder}}</p>
-    <button id="start" @click="$emit('start')">start</button>
+    <div id=left>
+      <p>{{status}}</p>
+    </div>
+    <div id="right">
+      <p>location:</p>
+      <p class="link">{{folder}}</p>
+      <button id="start" @click="$emit('start')">start</button>
+    </div>
+    
   </div>
 </template>
 
@@ -12,13 +18,24 @@ export default {
   components: {
 
   },
-  props: ["folder"]
+  props: ["folder", "status"]
 }
 </script>
 <style scoped>
   #general{
     background-color: var(--main);
     grid-column: 1 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  #left{
+    margin-left: 20px;
+  }
+  #left p{
+    font-size: 0.8em;
+  }
+  #right{
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
