@@ -4,18 +4,10 @@ VIDEO_FORMATS = ["144p", "240p", "360p", "480p", "720", "1080p", "1440p", "2160p
 AUDIO_FORMATS = ["DASH audio", "tiny"]
 
 
-class MyLogger:
-    def debug(self, msg):
-        pass
-
-    def warning(self, msg):
-        pass
-
-    def error(self, msg):
-        pass
 
 
-class Downloader():
+
+class InfoGetter():
     def __init__(self, url, info):
         self.url = url
         self.info = info
@@ -56,20 +48,7 @@ class Downloader():
             value = int(float(d["_percent_str"][:-1]))
         status = d["status"]
 
-    def start_download(self, settings, path):
-        if settings["convert"]:
-            ext = "mkv"
-        else:
-            ext = settings["ext"]
-        opts = {
-            "format": settings["format"],
-            "merge_output_format": ext
-            # "logger": MyLogger(),
-            # "progress_hooks": [self.my_hook]
-        }
-        print(opts, self.id)
-        with youtube_dl.YoutubeDL(opts) as ydl:
-            ydl.download([self.id])
+
 
 
 def get_info(url):
@@ -84,14 +63,3 @@ def get_info(url):
     else:
         return ([info])
 
-
-if __name__ == "__main__":
-    # TESTING
-    url = "https://www.youtube.com/watch?v=U-z62UyKm-Y"
-    video1 = Downloader(url, get_info(url)[0])
-
-    video1.start_download({
-                "format": "248 + 251",
-                "ext": "mkv",
-                "convert": False
-            }, "C:/users/ragnar/desktop")

@@ -2,7 +2,7 @@
   <div id="general">
     <p>location:</p>
     <p class="link">{{folder}}</p>
-    <button id="start">start</button>
+    <button id="start" @click="$emit('start')">start</button>
   </div>
 </template>
 

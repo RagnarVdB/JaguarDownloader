@@ -77,7 +77,10 @@ export default {
           this.videos = data;
         }
       })
-      .catch((err) => alert(err));
+      .catch((err) => {
+        alert(err);
+        animation.style.display = "none";
+      });
     },
 
     yes(){

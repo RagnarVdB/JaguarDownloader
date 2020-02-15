@@ -22,6 +22,7 @@ export default {
       setTimeout(() => document.getElementsByClassName('videoItem')[0].focus(), 100);
     },
     invalid(valid){
+      // displays error message when necessary
       this.$refs.addVideo.invalid(valid);
     }
   }

@@ -32,7 +32,7 @@
       </div>
     </form>
     <div id="convert" v-if="convert">
-      <p>The requested format is unavailable. The video will be downloaded as mkv and converted into {{video.settings.ext}}. This may take a long time</p>
+      <p>The requested format is unavailable. The video will be downloaded as mkv and converted into {{video.settings.ext}}. This may take a long time depending on the size of the video.</p>
     </div>
   </div>
 </template>
@@ -89,11 +89,12 @@ export default {
       }
     },
     format(){
-      return this.ext, this.resolution;
+      return [this.ext, this.resolution];
     }
   },
   watch: {
     format(){
+      // watching computed for reactivity
       this.formatter();
     }
   },
@@ -128,8 +129,8 @@ export default {
           formats[1] = format;
         }
       }
-      this.$emit('update-settings', {id: this.video.id, format: formats});
-      this.$emit('update-format', 'testing');
+      this.$emit('update-settings', {id: this.video.id, format: formats, convert: this.convert});
+      this.$emit('update-format');
     }
   },
   created(){

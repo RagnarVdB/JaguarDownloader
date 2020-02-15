@@ -4,7 +4,7 @@
     <setting v-bind:video = "video" v-if="video.id" 
     v-on:update-settings="(data) => {$emit('update-settings', data)}"
     v-on:update-format="format_change"/>
-    <div v-if="video.id">
+    <div v-if="video.id" id="size">
       <p>Estimated filesize: {{filesize}} </p>
     </div>
   </div>
@@ -32,8 +32,8 @@ export default {
     },
   },
   methods: {
-    format_change(val) {
-      console.log(val);
+    format_change() {
+      // computes filesize on format change
       let filesize
       if (this.video.settings.hasOwnProperty('format')){
         console.log('working'); 
@@ -58,5 +58,9 @@ export default {
     flex-direction: column;
     align-items: center;
     padding: 10px;
+  }
+  #size p{
+    font-size: 0.9rem;
+    color: var(--text-grey);
   }
 </style>

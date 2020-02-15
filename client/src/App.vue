@@ -1,8 +1,10 @@
 <template>
   <div id="app">
-    <list v-bind:videos = "videos" ref="listRef" v-on:change="changeCurrent" v-on:del-video="deleteVideo" v-on:add-video="addVideo"/>
-    <settings v-bind:video = "current" v-on:update-settings="update_settings"/>
-    <general v-bind:folder = "folder"/>
+    <list
+      v-bind:videos="videos" 
+      ref="listRef" v-on:change="changeCurrent" v-on:del-video="deleteVideo" v-on:add-video="addVideo"/>
+    <settings v-bind:video="current" v-on:update-settings="update_settings"/>
+    <general v-bind:folder="folder" v-on:start="start"/>
   </div>
 </template>
 
@@ -12,7 +14,7 @@ import settings from './components/settings.vue'
 import general from './components/general.vue'
 
 export default {
-  name: 'app',
+  name: 'App',
   components: {
     list,
     settings,
@@ -22,7 +24,7 @@ export default {
     return{
       videos: [],
       folder: "C:/users",
-      current: ''
+      current: '' //currently selected video
     }
   },
   methods: {
@@ -33,7 +35,7 @@ export default {
       this.videos = this.videos.filter(video => video.id !== id);
     },
     addVideo(newVideos){
-      //console.log(JSON.stringify(newVideos));
+      //adds videos that aren't in the list yet
       if (newVideos.length !== 0){
         newVideos = newVideos.filter((newVideo) => {
         let video;
@@ -63,8 +65,29 @@ export default {
           }
         }
       })
-    }
+    },
+    async start(){
+      let all_settings = {};
+      for (let video of this.videos){
+        all_settings[video.id] = video.settings;
+      }
+      this.$socket.emit('start', all_settings)
+}
   },
+  sockets: {
+    connect: function(){
+      console.log('socket connected!')
+    },
+    progress: function(percentage){
+      for (let id in percentage){
+        this.videos.forEach((video) => {
+          if (video.id === id){
+            video.progress = percentage[id];
+          }
+        })
+      }
+    }
+  }
 }
 </script>
 
