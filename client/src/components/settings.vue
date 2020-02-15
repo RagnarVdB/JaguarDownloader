@@ -1,11 +1,20 @@
 <template>
   <div id="settings">
-    <info v-bind:video = "video" v-if="video.id"/>
-    <setting v-bind:video = "video" v-if="video.id" 
-    v-on:update-settings="(data) => {$emit('update-settings', data)}"
-    v-on:update-format="format_change"/>
-    <div v-if="video.id" id="size">
-      <p>Estimated filesize: {{filesize}} </p>
+    <info
+      v-if="video.id"
+      :video="video"
+    />
+    <setting
+      v-if="video.id"
+      :video="video" 
+      @update-settings="(data) => {$emit('update-settings', data)}"
+      @update-format="format_change"
+    />
+    <div
+      v-if="video.id"
+      id="size"
+    >
+      <p>Estimated filesize: {{ filesize }} </p>
     </div>
   </div>
 </template>
@@ -15,17 +24,17 @@ import info from "./info"
 import setting from "./setting"
 
 export default {
-  name: "settings",
-  data(){
-    return {
-      filesize: 'unknown'
-    }
-  },
+  name: "Settings",
   components: {
     info,
     setting
   },
   props: ["video"],
+  data(){
+    return {
+      filesize: 'unknown'
+    }
+  },
   computed: {
     convert: function(){
       return !this.video.mp4_resolutions.includes(this.video.settings.quality) && this.video.settings.ext === 'mp4';

@@ -1,20 +1,29 @@
 <template>
   <div id="general">
-    <div id=left>
-      <p>{{status}}</p>
+    <div id="left">
+      <p>{{ status }}</p>
     </div>
     <div id="right">
       <p>location:</p>
-      <p class="link">{{folder}}</p>
-      <button id="start" @click="$emit('start')">start</button>
+      <button
+        class="link"
+        @click="$emit('set-folder')"
+      >
+        <p>{{ folder }}</p>
+      </button>
+      <button
+        id="start"
+        @click="$emit('start')"
+      >
+        start
+      </button>
     </div>
-    
   </div>
 </template>
 
 <script>
 export default {
-  name: "general",
+  name: "General",
   components: {
 
   },
@@ -58,7 +67,13 @@ export default {
     font-size: 0.8rem;
   }
   .link{
+    border: none;
+  }
+  .link p{
     color: #0077FF;
     text-decoration: underline;
+  }
+  .link:hover{
+    background-color: transparent;
   }
 </style>

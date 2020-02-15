@@ -6,6 +6,8 @@ venv
 api/tmp/
 api/__pycache__/
 *.pyc
+build
+dist
 
 /client/.DS_Store
 /client/node_modules

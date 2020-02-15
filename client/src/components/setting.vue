@@ -3,47 +3,94 @@
     <form id="general">
       <div>
         <p>filename: </p>
-        <input type="text" v-model="video.settings.filename">
+        <input
+          v-model="video.settings.filename"
+          type="text"
+        >
       </div>
       <div>
         <p>format: </p>
-        <select id="format" v-model="ext">
-          <option value="mkv">mkv</option>
-          <option value="mp4">mp4</option>
-          <option value="m4a">m4a</option>
-          <option value="mp3">mp3</option>
+        <select
+          id="format"
+          v-model="ext"
+        >
+          <option value="mkv">
+            mkv
+          </option>
+          <option value="mp4">
+            mp4
+          </option>
+          <option value="m4a">
+            m4a
+          </option>
+          <option value="mp3">
+            mp3
+          </option>
         </select>
       </div>
       <div v-if="!audio">
         <p>resolution: </p>
-        <select id="resolution" v-model="resolution" >
-          <option v-for="resolution in video.resolutions" :key="resolution" v-bind:value="resolution">{{resolution}}</option>
+        <select
+          id="resolution"
+          v-model="resolution"
+        >
+          <option
+            v-for="resolution in video.resolutions"
+            :key="resolution"
+            :value="resolution"
+          >
+            {{ resolution }}
+          </option>
         </select>
       </div>
-      <div v-if="audio" id="checkbox_tags">
+      <div
+        v-if="audio"
+        id="checkbox_tags"
+      >
         <p>include mp3 tags</p>
-        <input type="checkbox" v-model="tag">
+        <input
+          v-model="tag"
+          type="checkbox"
+        >
       </div>
     </form>
-    <form id="tags" v-if="video.settings.tag && audio">
-      <div v-for="el in ['title', 'artist', 'album', 'year', 'genre', 'album artist' ]" :key=el>
-        <p>{{el}}: </p>
-        <input type="text" v-model="video.settings.tags[el]">
+    <form
+      v-if="video.settings.tag && audio"
+      id="tags"
+    >
+      <div
+        v-for="el in ['title', 'artist', 'album', 'year', 'genre', 'album artist' ]"
+        :key="el"
+      >
+        <p>{{ el }}: </p>
+        <input
+          v-model="video.settings.tags[el]"
+          type="text"
+        >
       </div>
     </form>
-    <div id="convert" v-if="convert">
-      <p>The requested format is unavailable. The video will be downloaded as mkv and converted into {{video.settings.ext}}. This may take a long time depending on the size of the video.</p>
+    <div
+      v-if="convert"
+      id="convert"
+    >
+      <p>The requested format is unavailable. The video will be downloaded as mkv and converted into {{ video.settings.ext }}. This may take a long time depending on the size of the video.</p>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "setting",
+  name: "Setting",
   props: ["video"],
   computed: {
     convert: function(){
-      return !this.video.mp4_resolutions.includes(this.video.settings.quality) && this.video.settings.ext === 'mp4';
+      console.log('calculating convert')
+      if (this.video.settings.type === 'video'){
+        return !this.video.mp4_resolutions.includes(this.video.settings.quality) && this.video.settings.ext === 'mp4';
+      } else {
+        console.log('calculating audio')
+        return this.video.settings.ext === 'mp3'
+      }
     },
     audio: function(){
       return ['mp3', 'm4a'].includes(this.video.settings.ext)
@@ -98,10 +145,20 @@ export default {
       this.formatter();
     }
   },
+  created(){
+    this.formatter();
+  },
   methods: {
     formatter(){
       console.log('watching');
-      
+
+      let type
+      if (this.audio){
+        type = 'audio';
+      } else {
+        type = 'video';
+      }
+
       let formats = []
       const extentions = {
         mkv: "webm",
@@ -125,16 +182,29 @@ export default {
         
         //set audio format
         if (format.type === 'audio' && format.filesize > max){
-          max = format.filesize;
-          formats[1] = format;
+          if (format.ext !== 'mp4'){
+            max = format.filesize;
+            if (type === 'audio'){
+              formats[0] = format;
+            } else {
+              formats[1] = format
+            }
+          } else {
+            if (format.ext === 'm4a' || this.convert){
+              max = format.filesize;
+            if (type === 'audio'){
+              formats[0] = format;
+            } else {
+              formats[1] = format
+            }
+            }
+          }
         }
       }
-      this.$emit('update-settings', {id: this.video.id, format: formats, convert: this.convert});
+      this.$emit('update-settings', {id: this.video.id, format: formats, type: type});
       this.$emit('update-format');
+      this.$emit('update-settings', {id: this.video.id, convert: this.convert})
     }
-  },
-  created(){
-    this.formatter();
   }
 }
 </script>
@@ -182,7 +252,7 @@ p {
   margin-top: 20px;
 }
 #checkbox_tags{
-  display: flex;
+  display: none !important; /* Set to none until feature is ready for deployment */
   flex-direction: row;
   justify-content: flex-start;
 }

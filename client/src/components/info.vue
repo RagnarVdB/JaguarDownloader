@@ -1,6 +1,6 @@
 <template>
   <div id="info">
-    <img v-bind:src="video.thumbnail"/>
+    <img :src="video.thumbnail">
     <div id="wrapper">
       <div class="labels">
         <p>Title:</p>
@@ -8,9 +8,9 @@
         <p>Date:</p>
       </div>
       <div class="content">
-        <p>{{video.title}}</p>
-        <p>{{video.channel}}</p>
-        <p>{{video.date}}</p>
+        <p>{{ video.title }}</p>
+        <p>{{ video.channel }}</p>
+        <p>{{ video.date }}</p>
       </div>
     </div>
   </div>
@@ -18,7 +18,7 @@
 
 <script>
 export default {
-  name: "info",
+  name: "Info",
   props: ["video"]
 }
 </script>

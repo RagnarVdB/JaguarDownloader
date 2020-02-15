@@ -1,8 +1,20 @@
 <template>
   <div id="list">
-    <addVideo ref = "addVideo" v-on:add-video="(data) => {$emit('add-video', data)}" />
-    <div id="items" v-for="video in videos" :key=video.id>
-      <videoItem class="videoItem" v-bind:video="video" v-on:current="$emit('change', video)" v-on:del-video="$emit('del-video', video.id)" />
+    <addVideo
+      ref="addVideo"
+      @add-video="(data) => {$emit('add-video', data)}"
+    />
+    <div
+      v-for="video in videos"
+      id="items"
+      :key="video.id"
+    >
+      <videoItem
+        class="videoItem"
+        :video="video"
+        @current="$emit('change', video)"
+        @del-video="$emit('del-video', video.id)"
+      />
     </div>
   </div>
 </template>
@@ -11,12 +23,12 @@
 import addVideo from "./addVideo"
 import videoItem from "./videoItem"
 export default {
-  name: "list",
-  props: ["videos"],
+  name: "List",
   components: {
     addVideo,
     videoItem
   },
+  props: ["videos"],
   methods: {
     setFocus(){
       setTimeout(() => document.getElementsByClassName('videoItem')[0].focus(), 100);

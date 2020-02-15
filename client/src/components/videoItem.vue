@@ -1,22 +1,33 @@
 <template>
-  <div id="item" tabindex="-1" @focus="$emit('current', video)">
+  <div
+    id="item"
+    tabindex="-1"
+    @focus="$emit('current', video)"
+  >
     <div id="title">
-      <p>{{video.title}}</p>
+      <p>{{ video.title }}</p>
     </div>
     <div id="progress">
-      <div v-bind:style="{width: video.progress + '%'}"></div>
+      <div :style="{width: video.progress + '%'}" />
     </div>
-    <p id="ext">{{video.settings.ext}}</p>
-    <p id="quality">{{video.settings.quality}}</p>
+    <p id="ext">
+      {{ video.settings.ext }}
+    </p>
+    <p
+      v-if="video.settings.type === 'video'"
+      id="quality"
+    >
+      {{ video.settings.quality }}
+    </p>
     <button @click="$emit('del-video', video.id)">  
-      <img src="../assets/delete.svg"/>
+      <img src="../assets/delete.svg">
     </button>
   </div>
 </template>
 
 <script>
 export default {
-  name: "videoItem",
+  name: "VideoItem",
   props: ["video"],
 }
 </script>

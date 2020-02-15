@@ -1,10 +1,22 @@
 <template>
   <div id="app">
     <list
-      v-bind:videos="videos" 
-      ref="listRef" v-on:change="changeCurrent" v-on:del-video="deleteVideo" v-on:add-video="addVideo"/>
-    <settings v-bind:video="current" v-on:update-settings="update_settings"/>
-    <general v-bind:folder="folder" v-bind:status="status" v-on:start="start"/>
+      ref="listRef" 
+      :videos="videos"
+      @change="changeCurrent"
+      @del-video="deleteVideo"
+      @add-video="addVideo"
+    />
+    <settings
+      :video="current"
+      @update-settings="update_settings"
+    />
+    <general
+      :folder="folder"
+      :status="status"
+      @start="start"
+      @set-folder="set_folder"
+    />
   </div>
 </template>
 
@@ -34,6 +46,9 @@ export default {
     },
     deleteVideo(id){
       this.videos = this.videos.filter(video => video.id !== id);
+      if (this.current.id === id){
+        this.current = ''
+      }
     },
     addVideo(newVideos){
       //adds videos that aren't in the list yet
@@ -73,7 +88,18 @@ export default {
         all_settings[video.id] = video.settings;
       }
       this.$socket.emit('start', all_settings)
-}
+    },
+    set_folder(){
+      fetch('http://127.0.0.1:5000/directory', {
+        method: 'GET'
+      })
+      .then(res => res.json())
+      .then(path => {
+        console.log(path)
+        this.folder = path
+      })
+      .catch(err => alert(err))
+    }
   },
   sockets: {
     connect: function(){
@@ -129,6 +155,7 @@ button, .button{
 }
 .link{
   color: blue;
+  width: auto !important; 
 }
 button:hover, .button:hover{
   background-color: white;

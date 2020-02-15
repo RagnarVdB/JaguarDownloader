@@ -4,6 +4,9 @@ from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 import youtube_dl
 import subprocess as sp
+import tkinter as tk
+from tkinter import filedialog
+import os
 
 PATH = "tmp/"
 
@@ -43,46 +46,54 @@ class Downloader():
 
     def convert(self):
         self.emitprogress(0, "converting ...")
-        filepath = r"{}{}.mkv".format(PATH, self.id)
-        new_filepath = r"{}{}.mp4".format(PATH, self.id)
-        cmd1 = 'ffprobe -v error -count_frames -select_streams v:0 -show_entries ' \
-               'stream=nb_read_frames -of ' \
-               'default=nokey=1:noprint_wrappers=1 "{0}"'.format(filepath)
-        print("count frames ...")
-        print(cmd1)
-        self.emitprogress(0, 'counting frames ...')
-        p = sp.Popen(cmd1, stdout=sp.PIPE, stderr=sp.STDOUT, stdin=sp.PIPE)
-        output = str(p.communicate())
-        numbers = []
-        for c in output:
-            if c.isdigit():
-                numbers.append(c)
-        tot_fr = int("".join(numbers))
+        original_ext = self.settings["format"][0]["ext"]
+        ext = self.settings["ext"]
+        filepath = r"{}{}.{}".format(PATH, self.id, original_ext)
+        new_filepath = r"{}{}.{}".format(PATH, self.id, ext)
+        if self.settings["type"] == "video":
+            cmd1 = 'ffprobe -v error -count_frames -select_streams v:0 -show_entries ' \
+                   'stream=nb_read_frames -of ' \
+                   'default=nokey=1:noprint_wrappers=1 "{0}"'.format(filepath)
+            print("count frames ...")
+            print(cmd1)
+            self.emitprogress(0, 'counting frames ...')
+            p = sp.Popen(cmd1, stdout=sp.PIPE, stderr=sp.STDOUT, stdin=sp.PIPE)
+            output = str(p.communicate())
+            numbers = []
+            for c in output:
+                if c.isdigit():
+                    numbers.append(c)
+            tot_fr = int("".join(numbers))
+
         cmd2 = 'ffmpeg -i "{0}" "{1}"'.format(filepath, new_filepath)
         p = sp.Popen(cmd2, stderr=sp.STDOUT, universal_newlines=True, stdout=sp.PIPE, stdin=sp.PIPE)
-        for line in p.stdout:
-            lst = line.split(" ")
-            for j in lst:
-                if j == "":
-                    lst.remove(j)
-            frame = lst[1]
-            if frame.isdigit():
-                try:
-                    fr = int(frame)
-                    perc = int(100 * (fr / tot_fr))
-                    print(perc)
-                    self.emitprogress(perc, "converting ...")
-                except ValueError:
-                    pass
+        if self.settings["type"] == "video":
+            for line in p.stdout:
+                lst = line.split(" ")
+                for j in lst:
+                    if j == "":
+                        lst.remove(j)
+                frame = lst[1]
+                if frame.isdigit():
+                    try:
+                        fr = int(frame)
+                        perc = int(100 * (fr / tot_fr))
+                        print(perc)
+                        self.emitprogress(perc, "converting ...")
+                    except ValueError:
+                        pass
 
     def start_download(self):
         if self.settings["convert"]:
-            ext = "mkv"
+            if self.settings["type"] == "video":
+                ext = "mkv"
+            else:
+                ext = "webm"
         else:
             ext = self.settings["ext"]
         if self.settings['ext'] in ['mp3', 'm4a']:
             opts = {
-                "format": self.settings["format"][0],
+                "format": self.settings["format"][0]["id"],
                 "merge_output_format": ext,
                 "logger": MyLogger(),
                 "progress_hooks": [self.my_hook],
@@ -98,7 +109,8 @@ class Downloader():
             }
 
         with youtube_dl.YoutubeDL(opts) as ydl:
-            print("starting download")
+            print("starting download", self.settings["convert"])
+            print(self.id, opts)
             ydl.download([self.id])
 
         print(self.settings["convert"])
@@ -122,6 +134,14 @@ def add_url():
     return jsonify(sent_videos)
 
 
+@app.route("/directory", methods=["GET"])
+def directory_chooser():
+    # reading stdout from seperate file because HTML doesn't have a directory dialog
+    # and Flask blocks TKinter windows
+    p = sp.Popen("foldergetter.exe", stdout=sp.PIPE)
+    out = p.communicate()
+    return jsonify(str(out[0].decode("utf-8")))
+
 @socketio.on('start')
 def start_handler(all_settings):
     for id in all_settings:
@@ -129,11 +149,9 @@ def start_handler(all_settings):
         video.start_download()
 
 
-@socketio.on("message")
-def handle_message(msg):
-    print(msg)
-    emit("message", "this is a message from the server")
-
-
 if __name__ == "__main__":
     socketio.run(app, debug=True)
+
+    p = sp.Popen("foldergetter.py", stdout=sp.PIPE, )
+    out = p.communicate()
+    print("output: ", out)

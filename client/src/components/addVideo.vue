@@ -2,17 +2,32 @@
   <div id="addVideo">
     <form @submit="addVideo">
       <label for="add video">ADD URL</label>
-      <input id="url_input" type="text" placeholder="enter url" v-model="url">
-      <input class = "button" type="submit" value="enter"/>
-      <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+      <input
+        id="url_input"
+        v-model="url"
+        type="text"
+        placeholder="enter url"
+      >
+      <input
+        class="button"
+        type="submit"
+        value="enter"
+      >
+      <div class="lds-ellipsis">
+        <div /><div /><div /><div />
+      </div>
     </form>
     <div id="invalid">
       <p>The specified url is invalid!</p>
     </div>
     <div id="playlist">
       <p>Playlist detected! Do you want to download the entire playlist?</p>
-      <button @click="yes" >YES</button>
-      <button @click="no" >NO</button>
+      <button @click="yes">
+        YES
+      </button>
+      <button @click="no">
+        NO
+      </button>
     </div>
   </div>
 </template>
@@ -20,7 +35,7 @@
 <script>
 const allowedFormats = ["2160p", "1440p", "1080p", "720p", "480p", "240p"];
 export default {
-  name: "addVideo",
+  name: "AddVideo",
   data(){
     return{
     url_playlist : "",
@@ -40,7 +55,7 @@ export default {
         },
         body: JSON.stringify({url: this.url})
       })
-      .then((res) => {return res.json()})
+      .then((res) => res.json())
       .then((data) => {
         //set default settings
         data.forEach(el => {
