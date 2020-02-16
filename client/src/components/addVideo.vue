@@ -18,7 +18,7 @@
       </div>
     </form>
     <div id="invalid">
-      <p>The specified url is invalid!</p>
+      <p>Something went wrong! Check your internet connection or the url.</p>
     </div>
     <div id="playlist">
       <p>Playlist detected! Do you want to download the entire playlist?</p>
@@ -39,7 +39,8 @@ export default {
   data(){
     return{
     url_playlist : "",
-    videos: []
+    videos: [],
+    url: ''
     }
   },
   methods: {
@@ -64,7 +65,8 @@ export default {
             type: "video",
             quality: "480p",
             tag: false,
-            tags: {}
+            tags: {},
+            filename: el.title.replace(/[/\\?%*:|"<>]/g, '')
           };
           el.filesize = "unknown";
           el.resolutions = new Array;
@@ -82,9 +84,7 @@ export default {
         });
         //stop loading animation
         animation.style.display = "none";
-        if (data.length === 1){
-          this.$emit('add-video', data);
-        } else {
+        if(data.length > 1) {
           //playlist: show buttons
           let wrapper = document.getElementById('addVideo');
           let playlist = document.getElementById('playlist');
@@ -92,6 +92,8 @@ export default {
           playlist.style.display = 'flex';
           this.url_playlist = this.url;
           this.videos = data;
+        } else {
+        this.$emit('add-video', data);
         }
       })
       .catch((err) => {

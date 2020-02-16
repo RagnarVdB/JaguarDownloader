@@ -11,7 +11,7 @@
       >
         <p>{{ folder }}</p>
       </button>
-      <button
+      <button v-bind:class="{ greyed: status !=='ready to download' && status !=='' }"
         id="start"
         @click="$emit('start')"
       >
@@ -60,6 +60,15 @@ export default {
     margin-right: 20px;
     width: 90px;
     font-size: 0.8rem;
+  }
+  .greyed{
+    color: var(--text-grey);
+    border: 1px solid var(--text-grey);
+    cursor: pointer;
+  }
+  .greyed:hover{
+    background-color: transparent;
+    color: var(--text-grey)
   }
   p{
     margin-right: 10px;

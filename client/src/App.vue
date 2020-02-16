@@ -37,7 +37,7 @@ export default {
       videos: [],
       folder: "C:/users",
       current: '', //currently selected video
-      status: 'ready to download'
+      status: ''
     }
   },
   methods: {
@@ -51,6 +51,7 @@ export default {
       }
     },
     addVideo(newVideos){
+      this.status = 'ready to download';
       //adds videos that aren't in the list yet
       if (newVideos.length !== 0){
         newVideos = newVideos.filter((newVideo) => {
@@ -83,41 +84,51 @@ export default {
       })
     },
     async start(){
-      let all_settings = {};
-      for (let video of this.videos){
-        all_settings[video.id] = video.settings;
+      if (this.status === '' || this.status === 'ready to download'){
+        let all_settings = {};
+        for (let video of this.videos){
+          all_settings[video.id] = video.settings;
+        }
+        this.$socket.emit('start', all_settings)
       }
-      this.$socket.emit('start', all_settings)
     },
     set_folder(){
+      document.getElementsByClassName('link')[0].style.cursor = 'wait';
       fetch('http://127.0.0.1:5000/directory', {
         method: 'GET'
       })
       .then(res => res.json())
       .then(path => {
+        document.getElementsByClassName('link')[0].style.cursor = 'pointer';
         console.log(path)
-        this.folder = path
+        if (path.length > 2){
+          this.folder = path
+        }
       })
       .catch(err => alert(err))
     }
   },
   sockets: {
     connect: function(){
-      console.log('socket connected!')
+      console.log('socket connected!');
     },
     progress: function(data){
-      console.log('received!')
+      console.log('received!');
       for (let id in data){
         this.videos.forEach((video) => {
           if (video.id === id){
             video.progress = data[id].progress;
             this.status = data[id].status;
             if (data[id].status === 'FINISHED!'){
-              this.deleteVideo(id)
+              this.deleteVideo(id);
             }
           }
         })
       }
+    },
+    errorlog: function(data){
+      console.log('received', data);
+      alert(`An error occurred: \n ${data.type}: ${data.msg}`)
     }
   }
 }

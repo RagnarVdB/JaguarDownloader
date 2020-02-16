@@ -1,11 +1,8 @@
 from flask import Flask, jsonify, request
-from downloader import InfoGetter, get_info
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 import youtube_dl
 import subprocess as sp
-import tkinter as tk
-from tkinter import filedialog
 import os
 
 PATH = "tmp/"
@@ -13,7 +10,8 @@ PATH = "tmp/"
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 CORS(app)
-videos = []
+VIDEO_FORMATS = ["144p", "240p", "360p", "480p", "720", "1080p", "1440p", "2160p", "DASH video"]
+AUDIO_FORMATS = ["DASH audio", "tiny"]
 
 
 class MyLogger:
@@ -25,6 +23,67 @@ class MyLogger:
 
     def error(self, msg):
         print(msg)
+        emit_error("DownloadError", msg)
+
+
+def emit_error(type, msg):
+    emit("errorlog", {"type": type, "msg": msg})
+
+
+class InfoGetter():
+    def __init__(self, url, info):
+        self.url = url
+        self.info = info
+        self.settings = {}
+        self.id = info.get("id")
+
+    def get_client_info(self):
+        formats = []
+        for format in self.info["formats"]:
+            form = {
+                "id": format["format_id"],
+                "ext": format["ext"],
+                "filesize": format["filesize"],
+                "format_note": format["format_note"]
+            }
+            if form["format_note"] in VIDEO_FORMATS:
+                form["type"] = "video"
+                formats.append(form)
+            elif form["format_note"] in AUDIO_FORMATS:
+                form["type"] = "audio"
+                formats.append(form)
+        date_info = self.info["upload_date"]
+        date = date_info[:4] + "/" + date_info[4:6] + "/" + date_info[6:]
+
+        return {
+            "id": self.info["id"],
+            "title": self.info["title"],
+            "channel": self.info["uploader"],
+            "thumbnail": self.info["thumbnail"],
+            "date": date,
+            "progress": 0,
+            "settings": {},
+            "formats": formats
+        }
+
+    def my_hook(self, d):
+        if "_percent_str" in d:
+            value = int(float(d["_percent_str"][:-1]))
+        status = d["status"]
+
+
+def get_info(url):
+    opts = {"ignoreerrors": False}
+    with youtube_dl.YoutubeDL(opts) as ydl:
+        try:
+            info = ydl.extract_info(url, download=False)
+        except youtube_dl.utils.DownloadError:
+            print("DOWNLOADERROR")
+            return {}
+    if info.get("_type") == "playlist":
+        return (info.get("entries"))
+    else:
+        return ([info])
 
 
 class Downloader():
@@ -34,7 +93,7 @@ class Downloader():
         self.path = path
 
     def emitprogress(self, val, status):
-        emit('progress', {self.id: {"progress": val, "status": status}})
+        emit("progress", {self.id: {"progress": val, "status": status}})
         print({self.id: {"progress": val, "status": status}})
         socketio.sleep(0.01)
 
@@ -42,11 +101,11 @@ class Downloader():
         if "_percent_str" in d:
             value = int(float(d["_percent_str"][:-1]))
             print(value)
-            self.emitprogress(value, 'downloading ...')
+            self.emitprogress(value, "downloading ...")
 
     def convert(self):
         self.emitprogress(0, "converting ...")
-        original_ext = self.settings["format"][0]["ext"]
+        original_ext = self.ext
         ext = self.settings["ext"]
         filepath = r"{}{}.{}".format(PATH, self.id, original_ext)
         new_filepath = r"{}{}.{}".format(PATH, self.id, ext)
@@ -56,7 +115,7 @@ class Downloader():
                    'default=nokey=1:noprint_wrappers=1 "{0}"'.format(filepath)
             print("count frames ...")
             print(cmd1)
-            self.emitprogress(0, 'counting frames ...')
+            self.emitprogress(0, "counting frames ...")
             p = sp.Popen(cmd1, stdout=sp.PIPE, stderr=sp.STDOUT, stdin=sp.PIPE)
             output = str(p.communicate())
             numbers = []
@@ -86,15 +145,15 @@ class Downloader():
     def start_download(self):
         if self.settings["convert"]:
             if self.settings["type"] == "video":
-                ext = "mkv"
+                self.ext = "mkv"
             else:
-                ext = "webm"
+                self.ext = "webm"
         else:
-            ext = self.settings["ext"]
-        if self.settings['ext'] in ['mp3', 'm4a']:
+            self.ext = self.settings["ext"]
+        if self.settings["ext"] in ["mp3", "m4a"]:
             opts = {
                 "format": self.settings["format"][0]["id"],
-                "merge_output_format": ext,
+                "merge_output_format": self.ext,
                 "logger": MyLogger(),
                 "progress_hooks": [self.my_hook],
                 "outtmpl": '/{}%(id)s.%(ext)s'.format(PATH)
@@ -102,7 +161,7 @@ class Downloader():
         else:
             opts = {
                 "format": self.settings["format"][0]["id"] + " + " + self.settings["format"][1]["id"],
-                "merge_output_format": ext,
+                "merge_output_format": self.ext,
                 "logger": MyLogger(),
                 "progress_hooks": [self.my_hook],
                 "outtmpl": '/{}%(id)s.%(ext)s'.format(PATH)
@@ -111,12 +170,28 @@ class Downloader():
         with youtube_dl.YoutubeDL(opts) as ydl:
             print("starting download", self.settings["convert"])
             print(self.id, opts)
-            ydl.download([self.id])
+            try:
+                ydl.download([self.id])
+            except youtube_dl.utils.DownloadError:
+                emit_error("DownloadError", "Something went wrong!")
 
         print(self.settings["convert"])
         if self.settings["convert"]:
             print("converting...")
             self.convert()
+        print('converted')
+
+        try:
+            print("{}{}.{}".format(PATH, self.id, self.settings["ext"]),
+                  "{}/{}.{}".format(self.path, self.settings["filename"], self.settings["ext"]))
+
+            os.rename("{}{}.{}".format(PATH, self.id, self.settings["ext"]),
+                      "{}/{}.{}".format(self.path, self.settings["filename"], self.settings["ext"]))
+        except FileNotFoundError:
+            emit_error("DownloadError", "Couldn't find downloaded file")
+        except FileExistsError:
+            emit_error("FileExistsError",'file already exists!')
+
         self.emitprogress(100, "FINISHED!")
 
 
@@ -125,24 +200,30 @@ def add_url():
     url = request.json["url"]
     print(url)
     infos = get_info(url)
+    print("infos:", infos)
+    if len(infos) == 0:
+        print("returning...")
+        return jsonify([])
     sent_videos = []
     for info in infos:
         video = InfoGetter(url, info)
-        videos.append(video)
         client_info = video.get_client_info()
         sent_videos.append(client_info)
+    print("sent videos: ", sent_videos)
     return jsonify(sent_videos)
 
 
 @app.route("/directory", methods=["GET"])
 def directory_chooser():
     # reading stdout from seperate file because HTML doesn't have a directory dialog
-    # and Flask blocks TKinter windows
+    # and Flask blocks tkinter windows
+    print('choosing directory')
     p = sp.Popen("foldergetter.exe", stdout=sp.PIPE)
     out = p.communicate()
     return jsonify(str(out[0].decode("utf-8")))
 
-@socketio.on('start')
+
+@socketio.on("start")
 def start_handler(all_settings):
     for id in all_settings:
         video = Downloader(id, all_settings[id])
@@ -151,7 +232,8 @@ def start_handler(all_settings):
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)
-
-    p = sp.Popen("foldergetter.py", stdout=sp.PIPE, )
-    out = p.communicate()
-    print("output: ", out)
+    url = "https://www.youtube.com/watch?v=pbMwTqkKSps"
+    infos = get_info(url)
+    print("infos:", infos)
+    if len(infos) == 0:
+        print('error')

@@ -7,6 +7,7 @@
           v-model="video.settings.filename"
           type="text"
         >
+        <img src="../assets/info.svg" alt="info" class="info" id="filename" @mouseover="over('filenametext')" @mouseout="out('filenametext')">
       </div>
       <div>
         <p>format: </p>
@@ -27,8 +28,9 @@
             mp3
           </option>
         </select>
+        <img src="../assets/info.svg" alt="info" class="info" id="ext" @mouseover="over('exttext')" @mouseout="out('exttext')">
       </div>
-      <div v-if="!audio">
+      <div v-if="!audio" class="tooltip">
         <p>resolution: </p>
         <select
           id="resolution"
@@ -42,6 +44,12 @@
             {{ resolution }}
           </option>
         </select>
+        <img src="../assets/info.svg" alt="info" class="info" id="res" @mouseover="over('restext')" @mouseout="out('restext')">
+      </div>
+      <div id="tooltiptexts">
+        <p id="filenametext">Enter the filename without the extention</p>
+        <p id="exttext">The extention of the file. mkv and mp4 are video formats, m4a and mp3 contain audio only. Mp4 and mp3 have better compatibility, while mkv and m4a preserve better quality.</p>
+        <p id="restext">The quality of the video, higher resolution means higher quality but a larger filesize. 1080p is recommended for most screens.</p>
       </div>
       <div
         v-if="audio"
@@ -53,6 +61,7 @@
           type="checkbox"
         >
       </div>
+      <p class="tooltiptext"></p>
     </form>
     <form
       v-if="video.settings.tag && audio"
@@ -182,7 +191,7 @@ export default {
         
         //set audio format
         if (format.type === 'audio' && format.filesize > max){
-          if (format.ext !== 'mp4'){
+          if (['mkv', 'mp3'].includes(format.ext) || this.convert){
             max = format.filesize;
             if (type === 'audio'){
               formats[0] = format;
@@ -190,20 +199,27 @@ export default {
               formats[1] = format
             }
           } else {
-            if (format.ext === 'm4a' || this.convert){
+            if (format.ext === 'm4a'){
               max = format.filesize;
-            if (type === 'audio'){
-              formats[0] = format;
-            } else {
-              formats[1] = format
-            }
+              if (type === 'audio'){
+                formats[0] = format;
+              } else {
+                formats[1] = format
+              }
             }
           }
         }
       }
       this.$emit('update-settings', {id: this.video.id, format: formats, type: type});
       this.$emit('update-format');
-      this.$emit('update-settings', {id: this.video.id, convert: this.convert})
+      this.$emit('update-settings', {id: this.video.id, convert: this.convert});
+    },
+    over(id){
+      document.getElementById(id).style.display = 'block';
+
+    },
+    out(id){
+      document.getElementById(id).style.display = 'none';
     }
   }
 }
@@ -239,14 +255,14 @@ p {
 
 }
 #general input, #general select{
-  width: 200px;
+  width: 20vw;
   padding: 0;
   border: 1px solid #393939;
   background-color: black;
   margin-left: 20px;
 }
 #general select{
-  width: 202px;
+  width: 20vw;
 }
 #convert{
   margin-top: 20px;
@@ -277,6 +293,18 @@ p {
   border: none;
   background-color: black;
   width: 100%;
+}
+
+.info{
+  width: 15px;
+  margin-left: 10px;
+}
+
+#tooltiptexts{
+  margin-top: 15px
+}
+#tooltiptexts p{
+  display: none;
 }
 
 </style>

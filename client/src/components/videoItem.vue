@@ -52,14 +52,14 @@ export default {
     width: 80px;
   }
   #title{
-    width: 100px;
+    width: 300px;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-height: 42px;
+    max-height: 39px;
     margin-left: 20px;
   }
   #title p{
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
   #progress{
     width: 100%;
