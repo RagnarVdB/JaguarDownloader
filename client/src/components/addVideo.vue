@@ -66,7 +66,8 @@ export default {
             quality: "480p",
             tag: false,
             tags: {},
-            filename: el.title.replace(/[/\\?%*:|"<>]/g, '')
+            filename: el.title.replace(/[/\\?%*:|"<>]/g, ''),
+            duration: el.duration
           };
           el.filesize = "unknown";
           el.resolutions = new Array;

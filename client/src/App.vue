@@ -111,7 +111,6 @@ export default {
       .then(res => res.json())
       .then(path => {
         document.getElementsByClassName('link')[0].style.cursor = 'pointer';
-        console.log(path)
         if (path.length > 2){
           this.folder = path
         }
@@ -124,7 +123,6 @@ export default {
       console.log('socket connected!');
     },
     progress: function(data){
-      console.log('received!');
       for (let id in data){
         this.videos.forEach((video) => {
           if (video.id === id){
@@ -138,7 +136,6 @@ export default {
       }
     },
     errorlog: function(data){
-      console.log('received', data);
       alert(`An error occurred: \n ${data.type}: ${data.msg}`)
     }
   }

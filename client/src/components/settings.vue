@@ -45,7 +45,6 @@ export default {
       // computes filesize on format change
       let filesize
       if (this.video.settings.hasOwnProperty('format')){
-        console.log('working'); 
         let format = this.video.settings.format;
         if (format.length === 1){
           filesize = Math.round(format[0].filesize / 1000000)

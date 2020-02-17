@@ -44,7 +44,8 @@ class InfoGetter():
                 "id": format["format_id"],
                 "ext": format["ext"],
                 "filesize": format["filesize"],
-                "format_note": format["format_note"]
+                "format_note": format["format_note"],
+                "fps": format["fps"]
             }
             if form["format_note"] in VIDEO_FORMATS:
                 form["type"] = "video"
@@ -63,7 +64,8 @@ class InfoGetter():
             "date": date,
             "progress": 0,
             "settings": {},
-            "formats": formats
+            "formats": formats,
+            "duration": self.info["duration"]
         }
 
     def my_hook(self, d):
@@ -78,7 +80,6 @@ def get_info(url):
         try:
             info = ydl.extract_info(url, download=False)
         except youtube_dl.utils.DownloadError:
-            print("DOWNLOADERROR")
             return {}
     if info.get("_type") == "playlist":
         return (info.get("entries"))
@@ -94,13 +95,11 @@ class Downloader():
 
     def emitprogress(self, val, status):
         emit("progress", {self.id: {"progress": val, "status": status}})
-        print({self.id: {"progress": val, "status": status}})
         socketio.sleep(0.01)
 
     def my_hook(self, d):
         if "_percent_str" in d:
             value = int(float(d["_percent_str"][:-1]))
-            print(value)
             self.emitprogress(value, "downloading ...")
 
     def convert(self):
@@ -110,24 +109,11 @@ class Downloader():
         filepath = os.path.join(PATH, "{}.{}".format(self.id, original_ext))
         new_filepath = os.path.join(PATH, "{}.{}".format(self.id, ext))
         if self.settings["type"] == "video":
-            cmd1 = 'ffprobe -v error -count_frames -select_streams v:0 -show_entries ' \
-                   'stream=nb_read_frames -of ' \
-                   'default=nokey=1:noprint_wrappers=1 "{0}"'.format(filepath)
-            print("count frames ...")
-            print(cmd1)
-            self.emitprogress(5, "counting frames ...")
-            p = sp.Popen(cmd1, stdout=sp.PIPE, stderr=sp.STDOUT, stdin=sp.PIPE)
-            output = p.communicate()[0].decode('utf-8')
-
-            numbers = []
-            for c in output:
-                if c.isdigit():
-                    numbers.append(c)
-            tot_fr = int("".join(numbers))
+            tot_fr = self.settings["format"][0]["fps"] * self.settings["duration"]
+            print(tot_fr)
 
         cmd2 = 'ffmpeg -i "{0}" "{1}"'.format(filepath, new_filepath)
         p = sp.Popen(cmd2, stderr=sp.STDOUT, universal_newlines=True, stdout=sp.PIPE, stdin=sp.PIPE)
-        print(cmd2)
         if self.settings["type"] == "video":
             for line in p.stdout:
                 print(line)
@@ -140,7 +126,6 @@ class Downloader():
                     try:
                         fr = int(frame)
                         perc = int(100 * (fr / tot_fr))
-                        print(perc)
                         self.emitprogress(perc, "converting ...")
                     except ValueError:
                         pass
@@ -173,28 +158,22 @@ class Downloader():
             }
 
         with youtube_dl.YoutubeDL(opts) as ydl:
-            print("starting download", self.settings["convert"])
-            print(self.id, opts)
             try:
                 ydl.download([self.id])
             except youtube_dl.utils.DownloadError:
                 emit_error("DownloadError", "Something went wrong!")
 
         if self.settings["convert"]:
-            print("converting...")
             self.convert()
-        print('converted')
 
         try:
-            print(os.path.join(PATH, "{}.{}".format(self.id, self.settings["ext"])),
-                      os.path.join(self.path, "{}.{}".format(self.settings["filename"], self.settings["ext"])))
-
             os.rename(os.path.join(PATH, "{}.{}".format(self.id, self.settings["ext"])),
                       os.path.join(self.path, "{}.{}".format(self.settings["filename"], self.settings["ext"])))
         except FileNotFoundError:
             try:
                 os.rename(os.path.join(PATH, "{}.{}".format(self.id, self.settings["ext"])),
-                          os.path.join(os.path.join(os.path.expanduser("~"), "Downloads"), "{}.{}".format(self.settings["filename"], self.settings["ext"])))
+                          os.path.join(os.path.join(os.path.expanduser("~"), "Downloads"),
+                                       "{}.{}".format(self.settings["filename"], self.settings["ext"])))
                 emit_error("DownloadError", "Illegal path, video moved to downloads folder")
             except:
                 emit_error("DownloadError", "Couldn't find downloaded file")
@@ -203,7 +182,7 @@ class Downloader():
                 except:
                     print("error moving file")
         except FileExistsError:
-            emit_error("FileExistsError",'file already exists!')
+            emit_error("FileExistsError", 'file already exists!')
             try:
                 os.remove(os.path.join(PATH, "{}.{}".format(self.id, self.settings["ext"])))
             except:
@@ -215,18 +194,14 @@ class Downloader():
 @app.route("/add", methods=["POST"])
 def add_url():
     url = request.json["url"]
-    print(url)
     infos = get_info(url)
-    print("infos:", infos)
     if len(infos) == 0:
-        print("returning...")
         return jsonify([])
     sent_videos = []
     for info in infos:
         video = InfoGetter(url, info)
         client_info = video.get_client_info()
         sent_videos.append(client_info)
-    print("sent videos: ", sent_videos)
     return jsonify(sent_videos)
 
 
@@ -234,14 +209,15 @@ def add_url():
 def directory_chooser():
     # reading stdout from seperate file because HTML doesn't have a directory dialog
     # and Flask blocks tkinter windows
-    print('choosing directory')
     p = sp.Popen("foldergetter.exe", stdout=sp.PIPE)
     out = p.communicate()
     return jsonify(str(out[0].decode("utf-8")))
 
+
 @app.route("/defaultpath", methods=["GET"])
 def defaultpath():
     return jsonify(os.path.join(os.path.expanduser("~"), "Downloads"))
+
 
 @socketio.on("start")
 def start_handler(data):
@@ -254,8 +230,3 @@ def start_handler(data):
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)
-    url = "https://www.youtube.com/watch?v=pbMwTqkKSps"
-    infos = get_info(url)
-    print("infos:", infos)
-    if len(infos) == 0:
-        print('error')

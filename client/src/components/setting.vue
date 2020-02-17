@@ -93,11 +93,9 @@ export default {
   props: ["video"],
   computed: {
     convert: function(){
-      console.log('calculating convert')
       if (this.video.settings.type === 'video'){
         return !this.video.mp4_resolutions.includes(this.video.settings.quality) && this.video.settings.ext === 'mp4';
       } else {
-        console.log('calculating audio')
         return this.video.settings.ext === 'mp3'
       }
     },
@@ -159,8 +157,6 @@ export default {
   },
   methods: {
     formatter(){
-      console.log('watching');
-
       let type
       if (this.audio){
         type = 'audio';
