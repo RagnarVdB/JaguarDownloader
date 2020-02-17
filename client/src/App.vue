@@ -95,6 +95,7 @@ export default {
     },
     async start(){
       if (this.status === '' || this.status === 'ready to download'){
+        this.status = 'downloading ...'
         let all_settings = {};
         for (let video of this.videos){
           all_settings[video.id] = video.settings;

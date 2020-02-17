@@ -127,8 +127,10 @@ class Downloader():
 
         cmd2 = 'ffmpeg -i "{0}" "{1}"'.format(filepath, new_filepath)
         p = sp.Popen(cmd2, stderr=sp.STDOUT, universal_newlines=True, stdout=sp.PIPE, stdin=sp.PIPE)
+        print(cmd2)
         if self.settings["type"] == "video":
             for line in p.stdout:
+                print(line)
                 lst = line.split(" ")
                 for j in lst:
                     if j == "":
@@ -142,13 +144,15 @@ class Downloader():
                         self.emitprogress(perc, "converting ...")
                     except ValueError:
                         pass
+        p.communicate()
+        os.remove(filepath)
 
     def start_download(self):
         if self.settings["convert"]:
             if self.settings["type"] == "video":
                 self.ext = "mkv"
             else:
-                self.ext = "webm"
+                self.ext = self.settings["format"][0]["ext"]
         else:
             self.ext = self.settings["ext"]
         if self.settings["ext"] in ["mp3", "m4a"]:
@@ -176,7 +180,6 @@ class Downloader():
             except youtube_dl.utils.DownloadError:
                 emit_error("DownloadError", "Something went wrong!")
 
-        print(self.settings["convert"])
         if self.settings["convert"]:
             print("converting...")
             self.convert()
@@ -189,9 +192,22 @@ class Downloader():
             os.rename(os.path.join(PATH, "{}.{}".format(self.id, self.settings["ext"])),
                       os.path.join(self.path, "{}.{}".format(self.settings["filename"], self.settings["ext"])))
         except FileNotFoundError:
-            emit_error("DownloadError", "Couldn't find downloaded file")
+            try:
+                os.rename(os.path.join(PATH, "{}.{}".format(self.id, self.settings["ext"])),
+                          os.path.join(os.path.join(os.path.expanduser("~"), "Downloads"), "{}.{}".format(self.settings["filename"], self.settings["ext"])))
+                emit_error("DownloadError", "Illegal path, video moved to downloads folder")
+            except:
+                emit_error("DownloadError", "Couldn't find downloaded file")
+                try:
+                    os.remove(os.path.join(PATH, "{}.{}".format(self.id, self.settings["ext"])))
+                except:
+                    print("error moving file")
         except FileExistsError:
             emit_error("FileExistsError",'file already exists!')
+            try:
+                os.remove(os.path.join(PATH, "{}.{}".format(self.id, self.settings["ext"])))
+            except:
+                print("error moving file")
 
         self.emitprogress(100, "FINISHED!")
 
@@ -225,7 +241,7 @@ def directory_chooser():
 
 @app.route("/defaultpath", methods=["GET"])
 def defaultpath():
-    return jsonify(os.path.join(os.path.expanduser("~"), "downloads"))
+    return jsonify(os.path.join(os.path.expanduser("~"), "Downloads"))
 
 @socketio.on("start")
 def start_handler(data):
