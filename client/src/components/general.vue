@@ -64,7 +64,7 @@ export default {
   .greyed{
     color: var(--text-grey);
     border: 1px solid var(--text-grey);
-    cursor: pointer;
+    cursor: default;
   }
   .greyed:hover{
     background-color: transparent;

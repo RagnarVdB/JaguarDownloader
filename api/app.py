@@ -87,7 +87,7 @@ def get_info(url):
 
 
 class Downloader():
-    def __init__(self, id, settings, path="C:/users/ragna/Desktop"):
+    def __init__(self, id, settings, path="%userprofile%/downloads"):
         self.id = id
         self.settings = settings
         self.path = path
@@ -107,17 +107,18 @@ class Downloader():
         self.emitprogress(0, "converting ...")
         original_ext = self.ext
         ext = self.settings["ext"]
-        filepath = r"{}{}.{}".format(PATH, self.id, original_ext)
-        new_filepath = r"{}{}.{}".format(PATH, self.id, ext)
+        filepath = os.path.join(PATH, "{}.{}".format(self.id, original_ext))
+        new_filepath = os.path.join(PATH, "{}.{}".format(self.id, ext))
         if self.settings["type"] == "video":
             cmd1 = 'ffprobe -v error -count_frames -select_streams v:0 -show_entries ' \
                    'stream=nb_read_frames -of ' \
                    'default=nokey=1:noprint_wrappers=1 "{0}"'.format(filepath)
             print("count frames ...")
             print(cmd1)
-            self.emitprogress(0, "counting frames ...")
+            self.emitprogress(5, "counting frames ...")
             p = sp.Popen(cmd1, stdout=sp.PIPE, stderr=sp.STDOUT, stdin=sp.PIPE)
-            output = str(p.communicate())
+            output = p.communicate()[0].decode('utf-8')
+
             numbers = []
             for c in output:
                 if c.isdigit():
@@ -182,11 +183,11 @@ class Downloader():
         print('converted')
 
         try:
-            print("{}{}.{}".format(PATH, self.id, self.settings["ext"]),
-                  "{}/{}.{}".format(self.path, self.settings["filename"], self.settings["ext"]))
+            print(os.path.join(PATH, "{}.{}".format(self.id, self.settings["ext"])),
+                      os.path.join(self.path, "{}.{}".format(self.settings["filename"], self.settings["ext"])))
 
-            os.rename("{}{}.{}".format(PATH, self.id, self.settings["ext"]),
-                      "{}/{}.{}".format(self.path, self.settings["filename"], self.settings["ext"]))
+            os.rename(os.path.join(PATH, "{}.{}".format(self.id, self.settings["ext"])),
+                      os.path.join(self.path, "{}.{}".format(self.settings["filename"], self.settings["ext"])))
         except FileNotFoundError:
             emit_error("DownloadError", "Couldn't find downloaded file")
         except FileExistsError:
@@ -222,11 +223,16 @@ def directory_chooser():
     out = p.communicate()
     return jsonify(str(out[0].decode("utf-8")))
 
+@app.route("/defaultpath", methods=["GET"])
+def defaultpath():
+    return jsonify(os.path.join(os.path.expanduser("~"), "downloads"))
 
 @socketio.on("start")
-def start_handler(all_settings):
+def start_handler(data):
+    all_settings = data["settings"]
+    path = data["path"]
     for id in all_settings:
-        video = Downloader(id, all_settings[id])
+        video = Downloader(id, all_settings[id], path)
         video.start_download()
 
 

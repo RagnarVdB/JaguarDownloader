@@ -35,10 +35,20 @@ export default {
   data(){
     return{
       videos: [],
-      folder: "C:/users",
+      folder: "C:/users/",
       current: '', //currently selected video
       status: ''
     }
+  },
+  created: function(){
+    fetch('http://127.0.0.1:5000/defaultpath', {
+      method: 'GET'
+    })
+    .then(res => res.json())
+    .then(data => {
+      this.folder = data;
+    })
+    .catch(error => console.log(error))
   },
   methods: {
     changeCurrent(video){
@@ -89,7 +99,7 @@ export default {
         for (let video of this.videos){
           all_settings[video.id] = video.settings;
         }
-        this.$socket.emit('start', all_settings)
+        this.$socket.emit('start', {settings: all_settings, path: this.folder})
       }
     },
     set_folder(){
