@@ -14,6 +14,7 @@
         :video="video"
         @current="$emit('change', video)"
         @del-video="$emit('del-video', video.id)"
+        v-bind:current="current_id"
       />
     </div>
   </div>
@@ -28,7 +29,7 @@ export default {
     addVideo,
     videoItem
   },
-  props: ["videos"],
+  props: ["videos", "current_id"],
   methods: {
     setFocus(){
       setTimeout(() => document.getElementsByClassName('videoItem')[0].focus(), 100);

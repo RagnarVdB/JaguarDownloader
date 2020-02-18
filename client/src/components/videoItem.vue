@@ -3,6 +3,7 @@
     id="item"
     tabindex="-1"
     @focus="$emit('current', video)"
+    v-bind:class="{ selected: video.id === current}"
   >
     <div id="title">
       <p>{{ video.title }}</p>
@@ -28,7 +29,7 @@
 <script>
 export default {
   name: "VideoItem",
-  props: ["video"],
+  props: ["video", "current"],
 }
 </script>
 
@@ -43,7 +44,7 @@ export default {
     align-items: center;
     margin-bottom: 10px;
   }
-  #item:hover, #item:focus{
+  #item:hover, #item:focus, .selected{
     outline: 2px solid rgb(148, 148, 148);
   }
   #item > p{

@@ -6,6 +6,7 @@
       @change="changeCurrent"
       @del-video="deleteVideo"
       @add-video="addVideo"
+      v-bind:current_id="current.id"
     />
     <settings
       :video="current"
