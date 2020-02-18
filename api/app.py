@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 import youtube_dl
@@ -6,8 +6,8 @@ import subprocess as sp
 import os
 
 PATH = "tmp/"
-
-app = Flask(__name__)
+DIST = "../client/dist/"
+app = Flask(__name__, template_folder=r"C:\Users\ragna\Desktop\code\Yt-download\client\dist", static_folder=DIST + r"C:\Users\ragna\Desktop\code\Yt-download\client\dist\static")
 socketio = SocketIO(app, cors_allowed_origins="*")
 CORS(app)
 VIDEO_FORMATS = ["144p", "240p", "360p", "480p", "720", "1080p", "1440p", "2160p", "DASH video"]
@@ -190,6 +190,15 @@ class Downloader():
 
         self.emitprogress(100, "FINISHED!")
 
+
+# Starting application
+
+@app.route("/")
+def main():
+    return render_template("index.html")
+
+
+# api requests
 
 @app.route("/add", methods=["POST"])
 def add_url():

@@ -8,6 +8,8 @@ api/__pycache__/
 *.pyc
 build
 dist
+builds
+client/build
 
 /client/.DS_Store
 /client/node_modules
