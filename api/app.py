@@ -4,10 +4,12 @@ from flask_socketio import SocketIO, emit
 import youtube_dl
 import subprocess as sp
 import os
+import tempfile
+import webbrowser
+from engineio.async_drivers import gevent
 
-PATH = "tmp/"
-DIST = "../client/dist/"
-app = Flask(__name__, template_folder=r"C:\Users\ragna\Desktop\code\Yt-download\client\dist", static_folder=DIST + r"C:\Users\ragna\Desktop\code\Yt-download\client\dist\static")
+PATH = os.path.join(tempfile.gettempdir(), "yt-download")
+app = Flask(__name__, template_folder="./", static_folder="./static")
 socketio = SocketIO(app, cors_allowed_origins="*")
 CORS(app)
 VIDEO_FORMATS = ["144p", "240p", "360p", "480p", "720", "1080p", "1440p", "2160p", "DASH video"]
@@ -146,7 +148,7 @@ class Downloader():
                 "merge_output_format": self.ext,
                 "logger": MyLogger(),
                 "progress_hooks": [self.my_hook],
-                "outtmpl": '/{}%(id)s.%(ext)s'.format(PATH)
+                "outtmpl": '{}/%(id)s.%(ext)s'.format(PATH)
             }
         else:
             opts = {
@@ -154,7 +156,7 @@ class Downloader():
                 "merge_output_format": self.ext,
                 "logger": MyLogger(),
                 "progress_hooks": [self.my_hook],
-                "outtmpl": '/{}%(id)s.%(ext)s'.format(PATH)
+                "outtmpl": '{}/%(id)s.%(ext)s'.format(PATH)
             }
 
         with youtube_dl.YoutubeDL(opts) as ydl:
@@ -220,12 +222,17 @@ def directory_chooser():
     # and Flask blocks tkinter windows
     p = sp.Popen("foldergetter.exe", stdout=sp.PIPE)
     out = p.communicate()
-    return jsonify(str(out[0].decode("utf-8")))
+    return jsonify(str(out[0].decode("utf-8")).rstrip())
 
 
 @app.route("/defaultpath", methods=["GET"])
 def defaultpath():
     return jsonify(os.path.join(os.path.expanduser("~"), "Downloads"))
+
+
+@app.route("/close", methods=["GET"])
+def close():
+    os._exit(0)
 
 
 @socketio.on("start")
@@ -238,4 +245,6 @@ def start_handler(data):
 
 
 if __name__ == "__main__":
+    # uncomment for production:
+    # webbrowser.get("C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s --app=http://127.0.0.1:5000").open("")
     socketio.run(app, debug=True)
