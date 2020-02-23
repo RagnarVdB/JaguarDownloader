@@ -3,6 +3,7 @@
     <list
       ref="listRef" 
       :videos="videos"
+      :status="status"
       @change="changeCurrent"
       @del-video="deleteVideo"
       @add-video="addVideo"
@@ -142,7 +143,7 @@ export default {
           if (video.id === id){
             video.progress = data[id].progress;
             this.status = data[id].status;
-            if (data[id].status === 'FINISHED!'){
+            if (data[id].status === 'FINISHED!' && this.videos.length === 1){
               this.deleteVideo(id);
             }
           }

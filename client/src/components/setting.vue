@@ -2,7 +2,7 @@
   <div id="setting">
     <form id="general">
       <div>
-        <p>filename: </p>
+        <p>Filename: </p>
         <input
           v-model="video.settings.filename"
           type="text"
@@ -10,7 +10,7 @@
         <img src="../assets/info.svg" alt="info" class="info" id="filename" @mouseover="over('filenametext')" @mouseout="out('filenametext')">
       </div>
       <div>
-        <p>format: </p>
+        <p>Format: </p>
         <select
           id="format"
           v-model="ext"
@@ -31,7 +31,7 @@
         <img src="../assets/info.svg" alt="info" class="info" id="ext" @mouseover="over('exttext')" @mouseout="out('exttext')">
       </div>
       <div v-if="!audio" class="tooltip">
-        <p>resolution: </p>
+        <p>Resolution: </p>
         <select
           id="resolution"
           v-model="resolution"
@@ -47,15 +47,15 @@
         <img src="../assets/info.svg" alt="info" class="info" id="res" @mouseover="over('restext')" @mouseout="out('restext')">
       </div>
       <div id="tooltiptexts">
-        <p id="filenametext">Enter the filename without the extention</p>
-        <p id="exttext">The extention of the file. mkv and mp4 are video formats, m4a and mp3 contain audio only. Mp4 and mp3 have better compatibility, while mkv and m4a preserve better quality.</p>
-        <p id="restext">The quality of the video, higher resolution means higher quality but a larger filesize. 1080p is recommended for most screens.</p>
+        <p id="filenametext">Enter the filename without the extension</p>
+        <p id="exttext">The extension of the file. Mkv and mp4 are video formats, m4a and mp3 contain audio only. Mp4 and mp3 have better compatibility, while mkv and m4a preserve better quality.</p>
+        <p id="restext">The quality of the video, higher resolution means higher quality but a larger filesize. 1080p is recommended for most displays.</p>
       </div>
       <div
         v-if="audio"
         id="checkbox_tags"
       >
-        <p>include mp3 tags</p>
+        <p>Include mp3 tags</p>
         <input
           v-model="tag"
           type="checkbox"
@@ -165,7 +165,7 @@ export default {
       }
 
       let formats = []
-      const extentions = {
+      const extensions = {
         mkv: "webm",
         mp4: "mp4",
         m4a: "m4a",
@@ -180,7 +180,7 @@ export default {
             formats[0] = format;
           }
         } else {
-          if (format.format_note === this.video.settings.quality && extentions[this.video.settings.ext] === format.ext){
+          if (format.format_note === this.video.settings.quality && extensions[this.video.settings.ext] === format.ext){
             formats[0] = format;
           }
         }

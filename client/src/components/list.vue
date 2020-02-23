@@ -1,5 +1,11 @@
 <template>
   <div id="list">
+    <div v-if="status === ''" id="info">
+      <p>
+        Start adding videos by entering the url in the text field below.
+        Then choose a destination folder and hit start in the bottom right
+      </p>
+    </div>
     <addVideo
       ref="addVideo"
       @add-video="(data) => {$emit('add-video', data)}"
@@ -17,6 +23,9 @@
         v-bind:current="current_id"
       />
     </div>
+    <div v-if="status === 'FINISHED!' && this.videos.length===0" id="finished">
+      <p>FINISHED!</p>
+    </div>
   </div>
 </template>
 
@@ -29,7 +38,7 @@ export default {
     addVideo,
     videoItem
   },
-  props: ["videos", "current_id"],
+  props: ["videos", "current_id", "status"],
   methods: {
     setFocus(){
       setTimeout(() => document.getElementsByClassName('videoItem')[0].focus(), 100);
@@ -50,5 +59,20 @@ export default {
   }
   #items{
     width: 100%;
+  }
+  #info{
+    width: 95%;
+    margin-top: 10px;
+  }
+  #info p{
+    font-size: 0.8rem;
+    color: var(--text-grey);
+  }
+  #finished{
+    margin-top: 100px;
+  }
+  #finished p{
+    font-size: 2rem;
+    color: var(--text-grey);
   }
 </style>

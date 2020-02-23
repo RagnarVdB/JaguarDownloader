@@ -11,8 +11,9 @@
       >
         <p>{{ folder }}</p>
       </button>
-      <button v-bind:class="{ greyed: status !=='ready to download' && status !=='' }"
+      <button
         id="start"
+        :class="{ greyed: status !=='ready to download' && status !=='' }"
         @click="$emit('start')"
       >
         start
