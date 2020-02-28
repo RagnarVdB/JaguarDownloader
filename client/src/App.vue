@@ -66,7 +66,7 @@ export default {
     .then(data => {
       this.folder = data;
     })
-    .catch(error => console.log(error))
+    .catch(error => console.error(error))
 
     fetch('http://127.0.0.1:5000/version', {
       method: 'GET',
@@ -79,7 +79,7 @@ export default {
       }
     })
     .catch(err => {
-      console.log(err);
+      console.error(err);
     })
   },
   methods: {
