@@ -6,8 +6,8 @@
         Then choose a destination folder and hit start in the bottom right
       </p>
     </div>
-    <div v-if="update" class="info">
-      <p>An update is available! Start the update by clicking <a href="https://jaguardownloader.netlify.com/#download" target="_blank">this link</a>.</p>
+    <div v-if="update && status === ''" class="info">
+      <p>An update is available! Start the update by clicking <a href="https://jaguardownloader.netlify.com/#download" target="_blank" @click="closer">this link</a>.</p>
     </div>
     <addVideo
       ref="addVideo"
@@ -49,6 +49,12 @@ export default {
     invalid(valid){
       // displays error message when necessary
       this.$refs.addVideo.invalid(valid);
+    },
+    closer(){
+      console.log('closing')
+      fetch('http://127.0.0.1:5000/close', {
+        method: 'GET'
+        });
     }
   }
 }

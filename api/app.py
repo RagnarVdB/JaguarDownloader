@@ -14,8 +14,10 @@ PATH = os.path.join(tempfile.gettempdir(), "JaguarDownloader")
 VERSIONURL = "http://jaguardownloader.netlify.com/version.json"
 
 app = Flask(__name__, template_folder="./", static_folder="./static")
+# remove CORS for production
 socketio = SocketIO(app, cors_allowed_origins="*")
 CORS(app)
+
 VIDEO_FORMATS = ["144p", "240p", "360p", "480p", "720", "1080p", "1440p", "2160p", "DASH video"]
 AUDIO_FORMATS = ["DASH audio", "tiny"]
 
