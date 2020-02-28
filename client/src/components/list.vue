@@ -1,10 +1,13 @@
 <template>
   <div id="list">
-    <div v-if="status === ''" id="info">
+    <div v-if="status === '' && !update" class="info">
       <p>
         Start adding videos by entering the url in the text field below.
         Then choose a destination folder and hit start in the bottom right
       </p>
+    </div>
+    <div v-if="update" class="info">
+      <p>An update is available! Start the update by clicking <a href="https://jaguardownloader.netlify.com/#download" target="_blank">this link</a>.</p>
     </div>
     <addVideo
       ref="addVideo"
@@ -38,7 +41,7 @@ export default {
     addVideo,
     videoItem
   },
-  props: ["videos", "current_id", "status"],
+  props: ["videos", "current_id", "status", "update"],
   methods: {
     setFocus(){
       setTimeout(() => document.getElementsByClassName('videoItem')[0].focus(), 100);
@@ -60,11 +63,11 @@ export default {
   #items{
     width: 100%;
   }
-  #info{
+  .info{
     width: 95%;
     margin-top: 10px;
   }
-  #info p{
+  .info p{
     font-size: 0.8rem;
     color: var(--text-grey);
   }

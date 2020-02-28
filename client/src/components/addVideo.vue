@@ -44,11 +44,11 @@ export default {
     }
   },
   methods: {
-    async addVideo(event){
+    addVideo(event){
       event.preventDefault();
       var animation = document.getElementsByClassName('lds-ellipsis')[0];
       animation.style.display = "inline-block";
-      await fetch('http://127.0.0.1:5000/add', {
+      fetch('http://127.0.0.1:5000/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -60,10 +60,12 @@ export default {
       .then((data) => {
         //set default settings
         data.forEach(el => {
+
+
+
           el.settings = {
             ext: "mkv",
             type: "video",
-            quality: "480p",
             tag: false,
             tags: {},
             filename: el.title.replace(/[/\\?%*:|"<>]/g, ''),
@@ -82,6 +84,11 @@ export default {
               el.mp4_resolutions.push(format.format_note);
             }
           });
+          if (el.resolutions.includes("1080p")){
+            el.settings.quality = "1080p";
+          } else {
+            el.settings.quality = el.resolutions[el.resolutions.length -1];
+          }
         });
         //stop loading animation
         animation.style.display = "none";

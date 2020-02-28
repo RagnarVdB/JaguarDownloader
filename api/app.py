@@ -5,10 +5,14 @@ import youtube_dl
 import subprocess as sp
 import os
 import tempfile
+import json
+import urllib
 import webbrowser
 from engineio.async_drivers import gevent
 
-PATH = os.path.join(tempfile.gettempdir(), "yt-download")
+PATH = os.path.join(tempfile.gettempdir(), "JaguarDownloader")
+VERSIONURL = "http://jaguardownloader.netlify.com/version.json"
+
 app = Flask(__name__, template_folder="./", static_folder="./static")
 socketio = SocketIO(app, cors_allowed_origins="*")
 CORS(app)
@@ -229,6 +233,11 @@ def directory_chooser():
 def defaultpath():
     return jsonify(os.path.join(os.path.expanduser("~"), "Downloads"))
 
+@app.route("/version", methods=["GET"])
+def version():
+    response = urllib.request.urlopen(VERSIONURL)
+    data = response.read().decode('utf-8')
+    return jsonify(json.loads(data))
 
 @app.route("/close", methods=["GET"])
 def close():

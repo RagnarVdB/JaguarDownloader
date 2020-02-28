@@ -4,6 +4,7 @@
       ref="listRef" 
       :videos="videos"
       :status="status"
+      :update="update"
       @change="changeCurrent"
       @del-video="deleteVideo"
       @add-video="addVideo"
@@ -39,7 +40,9 @@ export default {
       videos: [],
       folder: "C:/users/",
       current: '', //currently selected video
-      status: ''
+      status: '',
+      version: 0.1,
+      update: false
     }
   },
   created: function(){
@@ -64,6 +67,20 @@ export default {
       this.folder = data;
     })
     .catch(error => console.log(error))
+
+    fetch('http://127.0.0.1:5000/version', {
+      method: 'GET',
+
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.version !== this.version){
+        this.update = true;
+      }
+    })
+    .catch(err => {
+      console.log(err);
+    })
   },
   methods: {
     changeCurrent(video){
@@ -143,7 +160,7 @@ export default {
           if (video.id === id){
             video.progress = data[id].progress;
             this.status = data[id].status;
-            if (data[id].status === 'FINISHED!' && this.videos.length === 1){
+            if (data[id].status === 'FINISHED!' && this.videos.every((video) => video.progress === 100)){
               this.deleteVideo(id);
             }
           }
