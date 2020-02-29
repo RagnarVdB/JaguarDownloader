@@ -47,12 +47,10 @@ export default {
   },
   created: function(){
     window.addEventListener("beforeunload", () => {
-      if (performance.navigation.type != 1) {
-        console.log('closing from app')
-        fetch('http://127.0.0.1:5000/close', {
-        method: 'GET'
-        });
-      }
+      console.log('unloading');
+      fetch('http://127.0.0.1:5000/close', {
+      method: 'GET'
+      });
     });
 
     fetch('http://127.0.0.1:5000/defaultpath', {

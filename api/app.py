@@ -226,7 +226,7 @@ def add_url():
 def directory_chooser():
     # reading stdout from seperate file because HTML doesn't have a directory dialog
     # and Flask blocks tkinter windows
-    p = sp.Popen("foldergetter.exe", stdout=sp.PIPE)
+    p = sp.Popen("executables/ffoldergetter.exe", stdout=sp.PIPE)
     out = p.communicate()
     return jsonify(str(out[0].decode("utf-8")).rstrip())
 
@@ -235,14 +235,17 @@ def directory_chooser():
 def defaultpath():
     return jsonify(os.path.join(os.path.expanduser("~"), "Downloads"))
 
+
 @app.route("/version", methods=["GET"])
 def version():
     response = urllib.request.urlopen(VERSIONURL)
     data = response.read().decode('utf-8')
     return jsonify(json.loads(data))
 
+
 @app.route("/close", methods=["GET"])
 def close():
+    print('closing')
     os._exit(0)
 
 

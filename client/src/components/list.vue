@@ -6,7 +6,7 @@
         Then choose a destination folder and hit start in the bottom right
       </p>
     </div>
-    <div v-if="update && status === ''" class="info">
+    <div v-if="update && status === ''" class="info" id="updateMessage">
       <p>An update is available! Start the update by clicking <a href="https://jaguardownloader.netlify.com/#download" target="_blank" @click="closer">this link</a>.</p>
     </div>
     <addVideo
@@ -76,6 +76,10 @@ export default {
   .info p{
     font-size: 0.8rem;
     color: var(--text-grey);
+  }
+  #updateMessage p{
+    color: white;
+    font-size: 1rem;
   }
   #finished{
     margin-top: 100px;
