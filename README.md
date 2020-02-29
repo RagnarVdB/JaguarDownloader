@@ -1,14 +1,7 @@
-<<<<<<< HEAD
-# Jaguar Downloader
-Jaguar Downloader is a simple user interface for downloading youtube videos. The program is based on the popular downloading tool [youtube-dl](https://github.com/ytdl-org/youtube-dl). The GUI consists of a Flask webserver, serving a webpage made with [Vue.js](https://github.com/vuejs). The reason for this approach is the lack of good Python gui frameworks.
-
-More information and an installer for windows are provided on [my website](https://jaguardownloader.netlify.com/).
-=======
 # JaguarDownloader
 JaguarDownloader is a simple user interface for downloading youtube videos. The program is based on the popular downloading tool [youtube-dl](https://github.com/ytdl-org/youtube-dl). The GUI consists of a Flask webserver, serving a webpage made with [Vue.js](https://github.com/vuejs). The reason for this approach is the lack of good Python gui frameworks.
 
-More information and an installer for windows are provided on [my website](https://JaguarDownloader.netlify.com/).
->>>>>>> bb7573d64a7ca8349ee940c12137588e1ffbf1e0
+More information and an installer for windows are provided on [my website](http://jaguardownloader.me/).
 Please note that this is one of my first projects and is more about the learning experience than the actual usefulness.
 
 ## Core Features: 
