@@ -82,8 +82,20 @@ class InfoGetter():
         status = d["status"]
 
 
+class InfoLogger:
+    def debug(self):
+        socketio.sleep(0.01)
+
+    def warning(self, msg):
+        pass
+
+    def error(self, msg):
+        pass
+
+
 def get_info(url):
-    opts = {"ignoreerrors": False}
+    opts = {"ignoreerrors": False,
+            "logger": InfoLogger}
     with youtube_dl.YoutubeDL(opts) as ydl:
         try:
             info = ydl.extract_info(url, download=False)
@@ -109,6 +121,7 @@ class Downloader():
         if "_percent_str" in d:
             value = int(float(d["_percent_str"][:-1]))
             self.emitprogress(value, "downloading ...")
+
 
     def convert(self):
         self.emitprogress(0, "converting ...")

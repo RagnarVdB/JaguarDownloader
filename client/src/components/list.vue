@@ -13,18 +13,20 @@
       ref="addVideo"
       @add-video="(data) => {$emit('add-video', data)}"
     />
-    <div
-      v-for="video in videos"
-      id="items"
-      :key="video.id"
-    >
-      <videoItem
-        class="videoItem"
-        :video="video"
-        @current="$emit('change', video)"
-        @del-video="$emit('del-video', video.id)"
-        v-bind:current="current_id"
-      />
+    <div id="videowrapper">
+      <div
+        v-for="video in videos"
+        id="items"
+        :key="video.id"
+      >
+        <videoItem
+          class="videoItem"
+          :video="video"
+          @current="$emit('change', video)"
+          @del-video="$emit('del-video', video.id)"
+          v-bind:current="current_id"
+        />
+      </div>
     </div>
     <div v-if="status === 'FINISHED!' && this.videos.length===0" id="finished">
       <p>FINISHED!</p>
@@ -60,6 +62,24 @@ export default {
 }
 </script>
 <style scoped>
+
+  /* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 15px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #999; 
+}
+
+
   #list, #items{
     background-color: var(--main);
     display: flex;
@@ -76,6 +96,13 @@ export default {
   .info p{
     font-size: 0.8rem;
     color: var(--text-grey);
+  }
+  #videowrapper{
+    overflow: auto;
+    flex-grow: 1;
+    width: 100%;
+    height: 0;
+    margin-bottom: 10px;
   }
   #updateMessage p{
     color: white;
