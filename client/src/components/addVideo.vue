@@ -105,7 +105,8 @@ export default {
         }
       })
       .catch((err) => {
-        alert(err);
+        this.invalid(false);
+        console.error(err);
         animation.style.display = "none";
       });
     },
