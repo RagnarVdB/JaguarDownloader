@@ -33,7 +33,6 @@
 </template>
 
 <script>
-const allowedFormats = ["2160p", "1440p", "1080p", "720p", "480p", "240p"];
 export default {
   name: "AddVideo",
   data(){
@@ -69,18 +68,21 @@ export default {
             tag: false,
             tags: {},
             filename: el.title.replace(/[/\\?%*:|"<>]/g, ''),
-            duration: el.duration
+            duration: el.duration,
           };
+          if (el.hasOwnProperty('url')){
+            el.settings.url = el.url;
+          }
           el.filesize = "unknown";
           el.resolutions = new Array;
           el.mp4_resolutions = new Array;
           el.status = "ready to download";
           el.progress = 0;
           el.formats.forEach(format => {
-            if (allowedFormats.includes(format.format_note) && !el.resolutions.includes(format.format_note)){
+            if (format.type === 'video' && !el.resolutions.includes(format.format_note)){
               el.resolutions.push(format.format_note);
             }
-            if (format.ext === 'mp4' && allowedFormats.includes(format.format_note)){
+            if (format.ext === 'mp4' && format.type === 'video'){
               el.mp4_resolutions.push(format.format_note);
             }
           });

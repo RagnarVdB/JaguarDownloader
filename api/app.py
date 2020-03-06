@@ -74,7 +74,8 @@ class InfoGetter():
                 "progress": 0,
                 "settings": {},
                 "formats": formats,
-                "duration": self.info["duration"]
+                "duration": self.info["duration"],
+                "source": "youtube"
             }
         elif self.info["extractor"] == "Canvas":
             # do vrt.nu stuff
@@ -93,7 +94,7 @@ class InfoGetter():
                         "format_note": note,
                         "fps": format["fps"],
                         "id": format["format_id"],
-                        "type": format_type
+                        "type": format_type,
                     })
             print("returning")
             return {
@@ -104,8 +105,12 @@ class InfoGetter():
                 "duration": self.info["duration"],
                 "progress": 0,
                 "settings": {},
-                "formats": formats
+                "formats": formats,
+                "url": self.url,
+                "source": "Canvas"
             }
+        else:
+            return None
 
     def my_hook(self, d):
         if "_percent_str" in d:
@@ -139,7 +144,12 @@ def get_info(url):
 
 
 class Downloader():
-    def __init__(self, id, settings, path="%userprofile%/downloads"):
+    def __init__(self, id, settings, path="%userprofile%/downloads", url=""):
+        if url:
+            self.url = url
+            self.download_link = url
+        else:
+            self.download_link = id
         self.id = id
         self.settings = settings
         self.path = path
@@ -152,7 +162,6 @@ class Downloader():
         if "_percent_str" in d:
             value = int(float(d["_percent_str"][:-1]))
             self.emitprogress(value, "downloading ...")
-
 
     def convert(self):
         self.emitprogress(0, "converting ...")
@@ -192,7 +201,7 @@ class Downloader():
                 self.ext = self.settings["format"][0]["ext"]
         else:
             self.ext = self.settings["ext"]
-        if self.settings["ext"] in ["mp3", "m4a"]:
+        if len(self.settings["format"]) == 1:
             opts = {
                 "format": self.settings["format"][0]["id"],
                 "merge_output_format": self.ext,
@@ -211,10 +220,11 @@ class Downloader():
 
         with youtube_dl.YoutubeDL(opts) as ydl:
             try:
-                ydl.download([self.id])
+                print(self.download_link)
+                ydl.download([self.download_link])
             except youtube_dl.utils.DownloadError:
                 emit_error("DownloadError", "Something went wrong!")
-
+        print('finfished')
         if self.settings["convert"]:
             self.convert()
 
@@ -299,7 +309,12 @@ def start_handler(data):
     all_settings = data["settings"]
     path = data["path"]
     for id in all_settings:
-        video = Downloader(id, all_settings[id], path)
+        print(all_settings[id])
+        if all_settings[id].get("url"):
+            print("downloading with url")
+            video = Downloader(id, all_settings[id], path, all_settings[id]["url"])
+        else:
+            video = Downloader(id, all_settings[id], path)
         video.start_download()
 
 

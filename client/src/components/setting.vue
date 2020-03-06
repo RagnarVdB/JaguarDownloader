@@ -166,10 +166,10 @@ export default {
 
       let formats = []
       const extensions = {
-        mkv: "webm",
-        mp4: "mp4",
-        m4a: "m4a",
-        mp3: "mp3"
+        mkv: ["webm", "mp4"],
+        mp4: ["mp4"],
+        m4a: ["m4a"],
+        mp3: ["mp3"]
       }
       let max = 0;
       let format;
@@ -180,13 +180,13 @@ export default {
             formats[0] = format;
           }
         } else {
-          if (format.format_note === this.video.settings.quality && extensions[this.video.settings.ext] === format.ext){
+          if (format.format_note === this.video.settings.quality && extensions[this.video.settings.ext].includes(format.ext)){
             formats[0] = format;
           }
         }
         
         //set audio format
-        if (format.type === 'audio' && format.filesize > max){
+        if (((format.type === 'audio' && format.filesize > max) || !format.filesize) && this.video.source === 'youtube'){
           if (['mkv', 'mp3'].includes(format.ext) || this.convert){
             max = format.filesize;
             if (type === 'audio'){
