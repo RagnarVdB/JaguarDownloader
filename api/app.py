@@ -46,35 +46,66 @@ class InfoGetter():
         self.id = info.get("id")
 
     def get_client_info(self):
-        formats = []
-        for format in self.info["formats"]:
-            form = {
-                "id": format["format_id"],
-                "ext": format["ext"],
-                "filesize": format["filesize"],
-                "format_note": format["format_note"],
-                "fps": format["fps"]
-            }
-            if form["format_note"] in VIDEO_FORMATS:
-                form["type"] = "video"
-                formats.append(form)
-            elif form["format_note"] in AUDIO_FORMATS:
-                form["type"] = "audio"
-                formats.append(form)
-        date_info = self.info["upload_date"]
-        date = date_info[:4] + "/" + date_info[4:6] + "/" + date_info[6:]
+        if self.info["extractor"] == "youtube":
+            formats = []
+            for format in self.info["formats"]:
+                form = {
+                    "id": format["format_id"],
+                    "ext": format["ext"],
+                    "filesize": format["filesize"],
+                    "format_note": format["format_note"],
+                    "fps": format["fps"]
+                }
+                if form["format_note"] in VIDEO_FORMATS:
+                    form["type"] = "video"
+                    formats.append(form)
+                elif form["format_note"] in AUDIO_FORMATS:
+                    form["type"] = "audio"
+                    formats.append(form)
+            date_info = self.info["upload_date"]
+            date = date_info[:4] + "/" + date_info[4:6] + "/" + date_info[6:]
 
-        return {
-            "id": self.info["id"],
-            "title": self.info["title"],
-            "channel": self.info["uploader"],
-            "thumbnail": self.info["thumbnail"],
-            "date": date,
-            "progress": 0,
-            "settings": {},
-            "formats": formats,
-            "duration": self.info["duration"]
-        }
+            return {
+                "id": self.info["id"],
+                "title": self.info["title"],
+                "channel": self.info["uploader"],
+                "thumbnail": self.info["thumbnail"],
+                "date": date,
+                "progress": 0,
+                "settings": {},
+                "formats": formats,
+                "duration": self.info["duration"]
+            }
+        elif self.info["extractor"] == "Canvas":
+            # do vrt.nu stuff
+            formats = []
+            for format in self.info["formats"]:
+                if format["ext"] == "mp4" or format["ext"] == "m4a":
+                    if format.get("format_note") == "DASH audio":
+                        note = "DASH audio"
+                        format_type = "audio"
+                    else:
+                        note = str(format["width"]) + "p"
+                        format_type = "video"
+                    formats.append({
+                        "ext": format["ext"],
+                        "filesize": format.get("filesize"),
+                        "format_note": note,
+                        "fps": format["fps"],
+                        "id": format["format_id"],
+                        "type": format_type
+                    })
+            print("returning")
+            return {
+                "id": self.info["id"],
+                "title": self.info["title"],
+                "desc": self.info["description"],
+                "thumbnail": self.info["thumbnail"],
+                "duration": self.info["duration"],
+                "progress": 0,
+                "settings": {},
+                "formats": formats
+            }
 
     def my_hook(self, d):
         if "_percent_str" in d:
@@ -86,10 +117,10 @@ class InfoLogger:
     def debug(self):
         socketio.sleep(0.01)
 
-    def warning(self, msg):
+    def warning(self, msg=""):
         pass
 
-    def error(self, msg):
+    def error(self, msg=""):
         pass
 
 
@@ -224,6 +255,7 @@ def main():
 @app.route("/add", methods=["POST"])
 def add_url():
     url = request.json["url"]
+    print("getting info", url)
     infos = get_info(url)
     if len(infos) == 0:
         return jsonify([])
@@ -275,3 +307,14 @@ if __name__ == "__main__":
     # uncomment for production:
     # webbrowser.get("C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s --app=http://127.0.0.1:5000").open("")
     socketio.run(app, debug=True)
+
+    # testing
+    """
+    url = "https://www.vrt.be/vrtnu/a-z/wat-zegt-de-wetenschap/2019-2020/wat-zegt-de-wetenschap-d20200224-s2019-2020a8/"
+
+
+    info = get_info(url)[0]
+    video = InfoGetter(url, info)
+    client_info = video.get_client_info()
+    print(client_info)
+    """

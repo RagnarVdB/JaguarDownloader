@@ -14,7 +14,7 @@
       v-if="video.id"
       id="size"
     >
-      <p>Estimated filesize: {{ filesize }} </p>
+      <p v-if="filesize">Estimated file size: {{ filesize }} </p>
     </div>
   </div>
 </template>
@@ -44,17 +44,15 @@ export default {
     format_change() {
       // computes filesize on format change
       let filesize
-      if (this.video.settings.hasOwnProperty('format')){
+      if (this.video.settings.hasOwnProperty('format') && this.video.settings.format.filesize){
         let format = this.video.settings.format;
         if (format.length === 1){
           filesize = Math.round(format[0].filesize / 1000000)
         } else {
           filesize = Math.round((format[0].filesize + format[1].filesize) /1000000)
         }
-      } else {
-        filesize = 'unknown';
+        this.filesize = `${filesize} MB`;
       }
-      this.filesize = `${filesize} MB`;
     }
   }
 }
