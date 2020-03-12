@@ -11,4 +11,4 @@ Please note that this is one of my first projects and is more about the learning
 - create mp3 tags
 
 ## Screenshots
-![can't display image](screenshots/2.PNG)
+![can't display image](screenshots/screenshot.webp)
