@@ -59,9 +59,6 @@ export default {
       .then((data) => {
         //set default settings
         data.forEach(el => {
-
-
-
           el.settings = {
             ext: "mkv",
             type: "video",

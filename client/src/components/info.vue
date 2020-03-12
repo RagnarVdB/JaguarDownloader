@@ -4,15 +4,27 @@
     <div id="wrapper">
       <div class="labels">
         <p>Title:</p>
-        <p v-if="video.channel">Channel:</p>
-        <p v-if="video.date">Date:</p>
-        <p v-if="video.desc">Description:</p>
+        <p v-if="video.channel">
+          Channel:
+        </p>
+        <p v-if="video.date">
+          Date:
+        </p>
+        <p v-if="video.desc">
+          Description:
+        </p>
       </div>
       <div class="content">
         <p>{{ video.title }}</p>
-        <p v-if="video.channel">{{ video.channel }}</p>
-        <p v-if="video.date">{{ video.date }}</p>
-        <p v-if="video.desc">{{ video.desc }}</p>
+        <p v-if="video.channel">
+          {{ video.channel }}
+        </p>
+        <p v-if="video.date">
+          {{ video.date }}
+        </p>
+        <p v-if="video.desc">
+          {{ video.desc }}
+        </p>
       </div>
     </div>
   </div>

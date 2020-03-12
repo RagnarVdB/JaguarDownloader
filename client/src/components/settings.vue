@@ -14,7 +14,7 @@
       v-if="video.id"
       id="size"
     >
-      <p v-if="filesize">Estimated file size: {{ filesize }} </p>
+      <p v-if="filesize !== 'unknown'">Estimated file size: {{ filesize }} </p>
     </div>
   </div>
 </template>

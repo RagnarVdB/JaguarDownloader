@@ -86,7 +86,7 @@ class InfoGetter():
                         note = "DASH audio"
                         format_type = "audio"
                     else:
-                        note = str(format["width"]) + "p"
+                        note = str(format["height"]) + "p"
                         format_type = "video"
                     formats.append({
                         "ext": format["ext"],
@@ -205,8 +205,8 @@ class Downloader():
             opts = {
                 "format": self.settings["format"][0]["id"],
                 "merge_output_format": self.ext,
-                "logger": MyLogger(),
-                "progress_hooks": [self.my_hook],
+                # "logger": MyLogger(),
+                # "progress_hooks": [self.my_hook],
                 "outtmpl": '{}/%(id)s.%(ext)s'.format(PATH)
             }
         else:
@@ -220,15 +220,26 @@ class Downloader():
 
         with youtube_dl.YoutubeDL(opts) as ydl:
             try:
+                print(opts)
                 print(self.download_link)
                 ydl.download([self.download_link])
             except youtube_dl.utils.DownloadError:
                 emit_error("DownloadError", "Something went wrong!")
         print('finfished')
+
+        # when requesting mkv, but mp4 is downloaded, converting is not necessary, just renaming
+        if self.settings["ext"] == "mkv" and self.settings["format"][0]["ext"] == "mp4":
+            os.rename(os.path.join(PATH, "{}.{}".format(self.id, "mp4")), os.path.join(PATH, "{}.{}".format(self.id, "mkv")))
+
+
         if self.settings["convert"]:
             self.convert()
 
+        # move file to requested directory
         try:
+            print(os.path.join(PATH, "{}.{}".format(self.id, self.settings["ext"])),
+                      os.path.join(self.path, "{}.{}".format(self.settings["filename"], self.settings["ext"])))
+
             os.rename(os.path.join(PATH, "{}.{}".format(self.id, self.settings["ext"])),
                       os.path.join(self.path, "{}.{}".format(self.settings["filename"], self.settings["ext"])))
         except FileNotFoundError:
@@ -281,7 +292,7 @@ def add_url():
 def directory_chooser():
     # reading stdout from seperate file because HTML doesn't have a directory dialog
     # and Flask blocks tkinter windows
-    p = sp.Popen("executables/ffoldergetter.exe", stdout=sp.PIPE)
+    p = sp.Popen("executables/foldergetter.exe", stdout=sp.PIPE)
     out = p.communicate()
     return jsonify(str(out[0].decode("utf-8")).rstrip())
 
