@@ -35,133 +35,133 @@ export default {
     settings,
     general
   },
-  data(){
-    return{
+  data () {
+    return {
       videos: [],
-      folder: "C:/users/",
-      current: '', //currently selected video
+      folder: 'C:/users/',
+      current: '', // currently selected video
       status: '',
       version: 0.1,
       update: false
     }
   },
-  created: function(){
-    window.addEventListener("beforeunload", () => {
-      console.log('unloading');
+  created: function () {
+    window.addEventListener('beforeunload', () => {
+      console.log('unloading')
       fetch('http://127.0.0.1:5000/close', {
-      method: 'GET'
-      });
-    });
+        method: 'GET'
+      })
+    })
 
     fetch('http://127.0.0.1:5000/defaultpath', {
       method: 'GET'
     })
-    .then(res => res.json())
-    .then(data => {
-      this.folder = data;
-    })
-    .catch(error => console.error(error))
+      .then(res => res.json())
+      .then(data => {
+        this.folder = data
+      })
+      .catch(error => console.error(error))
 
     fetch('http://127.0.0.1:5000/version', {
-      method: 'GET',
+      method: 'GET'
 
     })
-    .then(res => res.json())
-    .then(data => {
-      if (data.version !== this.version){
-        this.update = true;
-      }
-    })
-    .catch(err => {
-      console.error(err);
-    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.version !== this.version) {
+          this.update = true
+        }
+      })
+      .catch(err => {
+        console.error(err)
+      })
   },
   methods: {
-    changeCurrent(video){
-    this.current = video;
+    changeCurrent (video) {
+      this.current = video
     },
-    deleteVideo(id){
-      this.videos = this.videos.filter(video => video.id !== id);
-      if (this.current.id === id){
+    deleteVideo (id) {
+      this.videos = this.videos.filter(video => video.id !== id)
+      if (this.current.id === id) {
         this.current = ''
       }
     },
-    addVideo(newVideos){
-      this.status = 'ready to download';
-      //adds videos that aren't in the list yet
-      if (newVideos.length !== 0){
+    addVideo (newVideos) {
+      this.status = 'ready to download'
+      // adds videos that aren't in the list yet
+      if (newVideos.length !== 0) {
         newVideos = newVideos.filter((newVideo) => {
-        let video;
-        for (video of this.videos){
-          if (video.id === newVideo.id){
-            return false;
+          let video
+          for (video of this.videos) {
+            if (video.id === newVideo.id) {
+              return false
             }
           }
-        return true
-        });
+          return true
+        })
 
-        this.videos = newVideos.concat(this.videos);
-        this.current = newVideos[0];
-        this.$refs.listRef.setFocus();
-        this.$refs.listRef.invalid(true);
+        this.videos = newVideos.concat(this.videos)
+        this.current = newVideos[0]
+        this.$refs.listRef.setFocus()
+        this.$refs.listRef.invalid(true)
       } else {
-        this.$refs.listRef.invalid(false);
+        this.$refs.listRef.invalid(false)
       }
     },
-    update_settings(data){
+    update_settings (data) {
       this.videos.forEach((video) => {
-        if (video.id === data.id){
-          for (let property in data){
-            if (property !== 'id'){
-              video.settings[property] = data[property];
+        if (video.id === data.id) {
+          for (let property in data) {
+            if (property !== 'id') {
+              video.settings[property] = data[property]
             }
           }
         }
       })
     },
-    async start(){
-      if (this.status === '' || this.status === 'ready to download'){
+    async start () {
+      if (this.status === '' || this.status === 'ready to download') {
         this.status = 'downloading ...'
-        let all_settings = {};
-        for (let video of this.videos){
-          all_settings[video.id] = video.settings;
+        let AllSettings = {}
+        for (let video of this.videos) {
+          AllSettings[video.id] = video.settings
         }
-        this.$socket.emit('start', {settings: all_settings, path: this.folder})
+        this.$socket.emit('start', {settings: AllSettings, path: this.folder})
       }
     },
-    set_folder(){
-      document.getElementsByClassName('link')[0].style.cursor = 'wait';
+    set_folder () {
+      document.getElementsByClassName('link')[0].style.cursor = 'wait'
       fetch('http://127.0.0.1:5000/directory', {
         method: 'GET'
       })
-      .then(res => res.json())
-      .then(path => {
-        document.getElementsByClassName('link')[0].style.cursor = 'pointer';
-        if (path.length > 2){
-          this.folder = path
-        }
-      })
-      .catch(err => alert(err))
+        .then(res => res.json())
+        .then(path => {
+          document.getElementsByClassName('link')[0].style.cursor = 'pointer'
+          if (path.length > 2) {
+            this.folder = path
+          }
+        })
+        .catch(err => alert(err))
     }
   },
   sockets: {
-    connect: function(){
-      console.log('socket connected!');
+    connect: function () {
+      console.log('socket connected!')
     },
-    progress: function(data){
-      for (let id in data){
+    progress: function (data) {
+      for (let id in data) {
         this.videos.forEach((video) => {
-          if (video.id === id){
-            video.progress = data[id].progress;
-            this.status = data[id].status;
-            if (data[id].status === 'FINISHED!' && this.videos.every((video) => video.progress === 100)){
-              this.deleteVideo(id);
+          if (video.id === id) {
+            video.progress = data[id].progress
+            this.status = data[id].status
+            if (data[id].status === 'FINISHED!' && this.videos.every((video) => video.progress === 100)) {
+              this.deleteVideo(id)
             }
           }
         })
       }
     },
-    errorlog: function(data){
+    errorlog: function (data) {
       alert(`An error occurred: \n ${data.type}: ${data.msg}`)
     }
   }
