@@ -33,8 +33,7 @@
 </template>
 
 <script>
-const fs = require('fs')
-
+const ydl = reuire('youtube-dl')
 export default {
   name: 'AddVideo',
   data () {
@@ -49,76 +48,11 @@ export default {
       event.preventDefault()
       var animation = document.getElementsByClassName('lds-ellipsis')[0]
       animation.style.display = 'inline-block'
-      fs.readdir('..', (err, files) => {
-        if (err) console.log(err)
-        files.forEach(file => {
-          console.log(file)
-        })
+      ydl(url, [], (err, info) => {
+
       })
-
-      // fetch('http://127.0.0.1:5000/add', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Accept': 'application/json'
-      //   },
-      //   body: JSON.stringify({url: this.url})
-      // })
-      //   .then((res) => res.json())
-      //   .then((data) => {
-      //   // set default settings
-      //     data.forEach(el => {
-      //       el.settings = {
-      //         ext: 'mkv',
-      //         type: 'video',
-      //         tag: false,
-      //         tags: {},
-      //         filename: el.title.replace(/[/\\?%*:|"<>]/g, ''),
-      //         duration: el.duration
-      //       }
-      //       if (el.hasOwnProperty('url')) {
-      //         el.settings.url = el.url
-      //       }
-      //       el.filesize = 'unknown'
-      //       el.resolutions = []
-      //       el.mp4_resolutions = []
-      //       el.status = 'ready to download'
-      //       el.progress = 0
-      //       el.formats.forEach(format => {
-      //         if (format.type === 'video' && !el.resolutions.includes(format.format_note)) {
-      //           el.resolutions.push(format.format_note)
-      //         }
-      //         if (format.ext === 'mp4' && format.type === 'video') {
-      //           el.mp4_resolutions.push(format.format_note)
-      //         }
-      //       })
-      //       if (el.resolutions.includes('1080p')) {
-      //         el.settings.quality = '1080p'
-      //       } else {
-      //         el.settings.quality = el.resolutions[el.resolutions.length - 1]
-      //       }
-      //     })
-      //     // stop loading animation
-      //     animation.style.display = 'none'
-      //     if (data.length > 1) {
-      //     // playlist: show buttons
-      //       let wrapper = document.getElementById('addVideo')
-      //       let playlist = document.getElementById('playlist')
-      //       wrapper.style.height = '90px'
-      //       playlist.style.display = 'flex'
-      //       this.url_playlist = this.url
-      //       this.videos = data
-      //     } else {
-      //       this.$emit('add-video', data)
-      //     }
-      //   })
-      //   .catch((err) => {
-      //     this.invalid(false)
-      //     console.error(err)
-      //     animation.style.display = 'none'
-      //   })
+      animation.style.display = 'none'
     },
-
     yes () {
       this.$emit('add-video', this.videos)
       document.getElementById('addVideo').style.height = '50px'
