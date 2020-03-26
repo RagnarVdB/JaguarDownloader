@@ -33,7 +33,8 @@
 </template>
 
 <script>
-const ydl = reuire('youtube-dl')
+// const ydl = require('youtube-dl')
+import { GetInfo } from '../functions/infogetter'
 export default {
   name: 'AddVideo',
   data () {
@@ -48,10 +49,12 @@ export default {
       event.preventDefault()
       var animation = document.getElementsByClassName('lds-ellipsis')[0]
       animation.style.display = 'inline-block'
-      ydl(url, [], (err, info) => {
-
-      })
-      animation.style.display = 'none'
+      GetInfo(this.url)
+        .then(res => {
+          console.log(res)
+          animation.style.display = 'none'
+        })
+        .catch(err => console.error(err))
     },
     yes () {
       this.$emit('add-video', this.videos)
