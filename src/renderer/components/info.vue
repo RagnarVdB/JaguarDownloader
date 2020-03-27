@@ -50,6 +50,9 @@ p{
   display: flex;
   flex-direction: column;
   padding: 2.5%;
+  height: fit-content;
+  flex-grow: 0;
+  flex-shrink: 1;
 }
 
 #info > img{

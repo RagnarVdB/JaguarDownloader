@@ -1,30 +1,44 @@
 const ytdl = require('youtube-dl')
+const fs = require('fs')
 
 const GetInfo = (url) => {
   return new Promise((resolve, reject) => {
     ytdl.getInfo(url, ['--yes-playlist'], (err, info) => {
+      // console.log('info', info)
       if (err) reject(err)
       var infos = []
-      if (Array.isArray(info) && info[0].extractor_key === 'youtube') {
+      if (Array.isArray(info) && info[0].extractor_key === 'Youtube') {
         for (let video of info) {
-          infos.push(GetUsefulInfo(video))
+          infos.push(YoutubeHandler(video))
         }
-      } else if (info.extractor_key === 'youtube') {
-        infos.push(GetUsefulInfo(info))
+      } else if (info.extractor_key === 'Youtube') {
+        infos.push(YoutubeHandler(info))
       } else if (info.extractor_key === 'Canvas') {
-        infos.push(GetVrtInfo(info))
+        infos.push(VrtHandler(info))
       }
 
-      // fs.writeFile('infos.json', JSON.stringify(infos), 'utf-8', err => console.log(err))
+      fs.writeFile('infos.json', JSON.stringify(infos), 'utf-8', (err) =>
+        console.log(err)
+      )
       // fs.writeFile('info.json', JSON.stringify(info), 'utf-8', err => console.error(err))
-      if (infos.length === 0) reject(err)
+      if (infos.length === 0) reject(new Error('error occurred'))
       resolve(infos)
     })
   })
 }
 
-const GetUsefulInfo = (video) => {
-  const VideoFormats = ['144p', '240p', '360p', '480p', '720', '1080p', '1440p', '2160p', 'DASH video']
+const YoutubeHandler = (video) => {
+  const VideoFormats = [
+    '144p',
+    '240p',
+    '360p',
+    '480p',
+    '720',
+    '1080p',
+    '1440p',
+    '2160p',
+    'DASH video'
+  ]
   const AudioFormats = ['DASH audio', 'tiny']
 
   let formats = []
@@ -49,7 +63,12 @@ const GetUsefulInfo = (video) => {
       })
     }
   }
-  let date = video.upload_date.slice(0, 4) + '/' + video.upload_date.slice(4, 6) + '/' + video.upload_date.slice(6, 8)
+  let date =
+    video.upload_date.slice(0, 4) +
+    '/' +
+    video.upload_date.slice(4, 6) +
+    '/' +
+    video.upload_date.slice(6, 8)
   return {
     id: video.id,
     title: video.title,
@@ -63,7 +82,18 @@ const GetUsefulInfo = (video) => {
   }
 }
 
-const GetVrtInfo = (video) => {
+const VrtHandler = (video) => {
+  let formats
+  for (let format of video.formats) {
+    let { ext, format_note, fps, filesize } = format
+    formats.push({
+      format_note,
+      ext,
+      fps,
+      id: format.format_id.split(' ')[0]
+    })
+  }
+
   return {
     id: video.id,
     title: video.title,
@@ -72,9 +102,21 @@ const GetVrtInfo = (video) => {
     date: null,
     duration: video._duration_raw,
     progress: 0,
-    settings: {}
-    // formats
+    settings: {},
+    formats
   }
 }
 
-export { GetInfo }
+if (require.main === module) {
+  const url =
+    'https://www.vrt.be/vrtnu/a-z/wat-zegt-de-wetenschap/2019-2020/wat-zegt-de-wetenschap-d20191230-s2019-2020a5/'
+  GetInfo(url)
+    .then((res) => {
+      console.log(res)
+      for (let format of res[0].formats) {
+        console.log(format)
+      }
+    })
+    .catch((err) => console.error(err))
+}
+// export { GetInfo }

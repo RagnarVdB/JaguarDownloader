@@ -1,31 +1,31 @@
 <template>
-  <div id="addVideo">
-    <form @submit="addVideo">
-      <label for="add video">ADD URL</label>
+  <div id='addVideo'>
+    <form @submit='addVideo'>
+      <label for='add video'>ADD URL</label>
       <input
-        id="url_input"
-        v-model="url"
-        type="text"
-        placeholder="enter url"
+        id='url_input'
+        v-model='url'
+        type='text'
+        placeholder='enter url'
       >
       <input
-        class="button"
-        type="submit"
-        value="enter"
+        class='button'
+        type='submit'
+        value='enter'
       >
-      <div class="lds-ellipsis">
+      <div class='lds-ellipsis'>
         <div /><div /><div /><div />
       </div>
     </form>
-    <div id="invalid">
+    <div id='invalid'>
       <p>Something went wrong! Check your internet connection or the url.</p>
     </div>
-    <div id="playlist">
+    <div id='playlist'>
       <p>Playlist detected! Do you want to download the entire playlist?</p>
-      <button @click="yes">
+      <button @click='yes'>
         YES
       </button>
-      <button @click="no">
+      <button @click='no'>
         NO
       </button>
     </div>
@@ -35,6 +35,7 @@
 <script>
 // const ydl = require('youtube-dl')
 import { GetInfo } from '../functions/infogetter'
+const allowedFormats = ['2160p', '1440p', '1080p', '720p', '480p', '240p']
 export default {
   name: 'AddVideo',
   data () {
@@ -50,9 +51,48 @@ export default {
       var animation = document.getElementsByClassName('lds-ellipsis')[0]
       animation.style.display = 'inline-block'
       GetInfo(this.url)
-        .then(res => {
-          console.log(res)
+        .then(data => {
+          data.forEach(el => {
+            el.settings = {
+              ext: 'mkv',
+              type: 'video',
+              tag: false,
+              tags: {},
+              filename: el.title.replace(/[/\\?%*:|"<>]/g, ''),
+              duration: el.duration
+            }
+            el.filesize = 'unknown'
+            el.resolutions = []
+            el.mp4_resolutions = []
+            el.status = 'ready to download'
+            el.progress = 0
+            el.formats.forEach(format => {
+              if (allowedFormats.includes(format.format_note) && !el.resolutions.includes(format.format_note)) {
+                el.resolutions.push(format.format_note)
+              }
+              if (format.ext === 'mp4' && allowedFormats.includes(format.format_note)) {
+                el.mp4_resolutions.push(format.format_note)
+              }
+            })
+            if (el.resolutions.includes('1080p')) {
+              el.settings.quality = '1080p'
+            } else {
+              el.settings.quality = el.resolutions[el.resolutions.length - 1]
+            }
+          })
+          // stop loading animation
           animation.style.display = 'none'
+          if (data.length > 1) {
+            // playlist: show buttons
+            let wrapper = document.getElementById('addVideo')
+            let playlist = document.getElementById('playlist')
+            wrapper.style.height = '90px'
+            playlist.style.display = 'flex'
+            this.url_playlist = this.url
+            this.videos = data
+          } else {
+            this.$emit('add-video', data)
+          }
         })
         .catch(err => console.error(err))
     },

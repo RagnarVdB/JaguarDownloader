@@ -235,9 +235,10 @@ p {
   border-radius: 10px;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   padding: 2.5%;
   margin-top: 15px;
-  height: 100%;
+  flex-grow: 1;
 }
 #general{
   display: flex;
@@ -283,6 +284,7 @@ p {
 }
 #tags div {
   width: 40%;
+  height: auto
 }
 #tags div input{
   border: none;
@@ -292,6 +294,7 @@ p {
 
 .info{
   width: 15px;
+  height: 15px;
   margin-left: 10px;
 }
 

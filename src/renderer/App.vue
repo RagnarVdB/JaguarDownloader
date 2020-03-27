@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <list
-      ref="listRef" 
+      ref="listRef"
       :videos="videos"
       :status="status"
       :update="update"
@@ -10,10 +10,7 @@
       @add-video="addVideo"
       v-bind:current_id="current.id"
     />
-    <settings
-      :video="current"
-      @update-settings="update_settings"
-    />
+    <settings :video="current" @update-settings="update_settings" />
     <general
       :folder="folder"
       :status="status"
@@ -35,7 +32,7 @@ export default {
     settings,
     general
   },
-  data () {
+  data() {
     return {
       videos: [],
       folder: 'C:/users/',
@@ -56,37 +53,36 @@ export default {
     fetch('http://127.0.0.1:5000/defaultpath', {
       method: 'GET'
     })
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         this.folder = data
       })
-      .catch(error => console.error(error))
+      .catch((error) => console.error(error))
 
     fetch('http://127.0.0.1:5000/version', {
       method: 'GET'
-
     })
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data.version !== this.version) {
           this.update = true
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err)
       })
   },
   methods: {
-    changeCurrent (video) {
+    changeCurrent(video) {
       this.current = video
     },
-    deleteVideo (id) {
-      this.videos = this.videos.filter(video => video.id !== id)
+    deleteVideo(id) {
+      this.videos = this.videos.filter((video) => video.id !== id)
       if (this.current.id === id) {
         this.current = ''
       }
     },
-    addVideo (newVideos) {
+    addVideo(newVideos) {
       this.status = 'ready to download'
       // adds videos that aren't in the list yet
       if (newVideos.length !== 0) {
@@ -108,7 +104,7 @@ export default {
         this.$refs.listRef.invalid(false)
       }
     },
-    update_settings (data) {
+    update_settings(data) {
       this.videos.forEach((video) => {
         if (video.id === data.id) {
           for (let property in data) {
@@ -119,29 +115,29 @@ export default {
         }
       })
     },
-    async start () {
+    async start() {
       if (this.status === '' || this.status === 'ready to download') {
         this.status = 'downloading ...'
         let AllSettings = {}
         for (let video of this.videos) {
           AllSettings[video.id] = video.settings
         }
-        this.$socket.emit('start', {settings: AllSettings, path: this.folder})
+        this.$socket.emit('start', { settings: AllSettings, path: this.folder })
       }
     },
-    set_folder () {
+    set_folder() {
       document.getElementsByClassName('link')[0].style.cursor = 'wait'
       fetch('http://127.0.0.1:5000/directory', {
         method: 'GET'
       })
-        .then(res => res.json())
-        .then(path => {
+        .then((res) => res.json())
+        .then((path) => {
           document.getElementsByClassName('link')[0].style.cursor = 'pointer'
           if (path.length > 2) {
             this.folder = path
           }
         })
-        .catch(err => alert(err))
+        .catch((err) => alert(err))
     }
   },
   sockets: {
@@ -154,7 +150,10 @@ export default {
           if (video.id === id) {
             video.progress = data[id].progress
             this.status = data[id].status
-            if (data[id].status === 'FINISHED!' && this.videos.every((video) => video.progress === 100)) {
+            if (
+              data[id].status === 'FINISHED!' &&
+              this.videos.every((video) => video.progress === 100)
+            ) {
               this.deleteVideo(id)
             }
           }
@@ -169,19 +168,19 @@ export default {
 </script>
 
 <style>
-:root{
+:root {
   --main: #232323;
-  --text-grey: #A9A9A9;
+  --text-grey: #a9a9a9;
 }
 
-
-*{
+* {
   margin: 0;
   padding: 0;
   color: white;
 }
 
-button, .button{
+button,
+.button {
   cursor: pointer;
 }
 
@@ -198,11 +197,12 @@ button, .button{
   grid-gap: 10px;
   padding: 10px;
 }
-.link{
+.link {
   color: blue;
-  width: auto !important; 
+  width: auto !important;
 }
-button:hover, .button:hover{
+button:hover,
+.button:hover {
   background-color: white;
   color: black;
   transition: 0.3s ease;

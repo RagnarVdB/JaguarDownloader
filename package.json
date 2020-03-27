@@ -3,7 +3,7 @@
   "version": "v0.3.0",
   "author": "Ragnar Van den Broeck",
   "description": "user-friendly gui for youtube-dl",
-  "license": null,
+  "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js && electron-builder",
