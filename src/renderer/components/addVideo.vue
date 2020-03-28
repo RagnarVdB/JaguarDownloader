@@ -35,7 +35,6 @@
 <script>
 // const ydl = require('youtube-dl')
 import { GetInfo } from '../functions/infogetter'
-const allowedFormats = ['2160p', '1440p', '1080p', '720p', '480p', '240p']
 export default {
   name: 'AddVideo',
   data () {
@@ -67,10 +66,10 @@ export default {
             el.status = 'ready to download'
             el.progress = 0
             el.formats.forEach(format => {
-              if (allowedFormats.includes(format.format_note) && !el.resolutions.includes(format.format_note)) {
+              if (!el.resolutions.includes(format.format_note) && format.type === 'video') {
                 el.resolutions.push(format.format_note)
               }
-              if (format.ext === 'mp4' && allowedFormats.includes(format.format_note)) {
+              if (format.ext === 'mp4') {
                 el.mp4_resolutions.push(format.format_note)
               }
             })

@@ -32,7 +32,7 @@ export default {
     settings,
     general
   },
-  data() {
+  data () {
     return {
       videos: [],
       folder: 'C:/users/',
@@ -73,16 +73,16 @@ export default {
       })
   },
   methods: {
-    changeCurrent(video) {
+    changeCurrent (video) {
       this.current = video
     },
-    deleteVideo(id) {
+    deleteVideo (id) {
       this.videos = this.videos.filter((video) => video.id !== id)
       if (this.current.id === id) {
         this.current = ''
       }
     },
-    addVideo(newVideos) {
+    addVideo (newVideos) {
       this.status = 'ready to download'
       // adds videos that aren't in the list yet
       if (newVideos.length !== 0) {
@@ -104,7 +104,7 @@ export default {
         this.$refs.listRef.invalid(false)
       }
     },
-    update_settings(data) {
+    update_settings (data) {
       this.videos.forEach((video) => {
         if (video.id === data.id) {
           for (let property in data) {
@@ -115,7 +115,7 @@ export default {
         }
       })
     },
-    async start() {
+    async start () {
       if (this.status === '' || this.status === 'ready to download') {
         this.status = 'downloading ...'
         let AllSettings = {}
@@ -125,7 +125,7 @@ export default {
         this.$socket.emit('start', { settings: AllSettings, path: this.folder })
       }
     },
-    set_folder() {
+    set_folder () {
       document.getElementsByClassName('link')[0].style.cursor = 'wait'
       fetch('http://127.0.0.1:5000/directory', {
         method: 'GET'

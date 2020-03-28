@@ -1,5 +1,5 @@
 const ytdl = require('youtube-dl')
-const fs = require('fs')
+// const fs = require('fs')
 
 const GetInfo = (url) => {
   return new Promise((resolve, reject) => {
@@ -17,9 +17,7 @@ const GetInfo = (url) => {
         infos.push(VrtHandler(info))
       }
 
-      fs.writeFile('infos.json', JSON.stringify(infos), 'utf-8', (err) =>
-        console.log(err)
-      )
+      // fs.writeFile('infos.json', JSON.stringify(infos), 'utf-8', (err) => console.log(err))
       // fs.writeFile('info.json', JSON.stringify(info), 'utf-8', err => console.error(err))
       if (infos.length === 0) reject(new Error('error occurred'))
       resolve(infos)
@@ -83,15 +81,31 @@ const YoutubeHandler = (video) => {
 }
 
 const VrtHandler = (video) => {
-  let formats
+  const VideoFormats = ['DASH video']
+  const AudioFormats = ['DASH audio']
+  let formats = []
   for (let format of video.formats) {
-    let { ext, format_note, fps, filesize } = format
-    formats.push({
-      format_note,
-      ext,
-      fps,
-      id: format.format_id.split(' ')[0]
-    })
+    // eslint-disable-next-line camelcase
+    let { ext, fps, filesize, format_note } = format
+    if (VideoFormats.includes(format_note)) {
+      formats.push({
+        format_note: String(format.height) + 'p',
+        ext,
+        fps,
+        id: format.format_id,
+        filesize,
+        type: 'video'
+      })
+    } else if (AudioFormats.includes(format_note)) {
+      formats.push({
+        format_note,
+        ext,
+        fps,
+        id: format.format_id.split(' ')[0],
+        filesize,
+        type: 'audio'
+      })
+    }
   }
 
   return {
@@ -119,4 +133,4 @@ if (require.main === module) {
     })
     .catch((err) => console.error(err))
 }
-// export { GetInfo }
+export { GetInfo }
