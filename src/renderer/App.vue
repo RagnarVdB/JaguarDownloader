@@ -25,6 +25,8 @@ import list from './components/list.vue'
 import settings from './components/settings.vue'
 import general from './components/general.vue'
 const urllib = require('urllib')
+const os = require('os')
+const path = require('path')
 export default {
   name: 'App',
   components: {
@@ -35,7 +37,7 @@ export default {
   data () {
     return {
       videos: [],
-      folder: 'C:/users/',
+      folder: path.join(os.homedir(), 'downloads'),
       current: '', // currently selected video
       status: '',
       version: 0.3,
@@ -53,10 +55,6 @@ export default {
       .catch(function (err) {
         console.error(err)
       })
-    // this.folder =
-    // if (data.version !== this.version) {
-    //   this.update = true
-    // }
   },
   methods: {
     changeCurrent (video) {
