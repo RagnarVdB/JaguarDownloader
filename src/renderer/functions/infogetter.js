@@ -17,7 +17,7 @@ const GetInfo = (url) => {
         infos.push(VrtHandler(info))
       }
 
-      // fs.writeFile('infos.json', JSON.stringify(infos), 'utf-8', (err) => console.log(err))
+      // fs.writeFile('infos_youtube.json', JSON.stringify(infos), 'utf-8', (err) => console.log(err))
       // fs.writeFile('info.json', JSON.stringify(info), 'utf-8', err => console.error(err))
       if (infos.length === 0) reject(new Error('error occurred'))
       resolve(infos)
@@ -123,7 +123,7 @@ const VrtHandler = (video) => {
 
 if (require.main === module) {
   const url =
-    'https://www.vrt.be/vrtnu/a-z/wat-zegt-de-wetenschap/2019-2020/wat-zegt-de-wetenschap-d20191230-s2019-2020a5/'
+    'https://www.youtube.com/watch?v=vJLxguyxNU0'
   GetInfo(url)
     .then((res) => {
       console.log(res)

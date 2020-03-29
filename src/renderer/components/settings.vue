@@ -35,11 +35,6 @@ export default {
       filesize: 'unknown'
     }
   },
-  computed: {
-    convert: function () {
-      return !this.video.mp4_resolutions.includes(this.video.settings.quality) && this.video.settings.ext === 'mp4'
-    }
-  },
   methods: {
     format_change () {
       // computes filesize on format change

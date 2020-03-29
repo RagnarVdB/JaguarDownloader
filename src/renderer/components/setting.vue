@@ -30,7 +30,7 @@
         </select>
         <img src="../assets/info.svg" alt="info" class="info" id="ext" @mouseover="over('exttext')" @mouseout="out('exttext')">
       </div>
-      <div v-if="!audio" class="tooltip">
+      <div v-if="type === 'video' " class="tooltip">
         <p>Resolution: </p>
         <select
           id="resolution"
@@ -52,7 +52,7 @@
         <p id="restext">The quality of the video, higher resolution means higher quality but a larger filesize. 1080p is recommended for most displays.</p>
       </div>
       <div
-        v-if="audio"
+        v-if="type === 'audio'"
         id="checkbox_tags"
       >
         <p>Include mp3 tags</p>
@@ -64,7 +64,7 @@
       <p class="tooltiptext"></p>
     </form>
     <form
-      v-if="video.settings.tag && audio"
+      v-if="video.settings.tag && type === 'audio'"
       id="tags"
     >
       <div
@@ -79,7 +79,7 @@
       </div>
     </form>
     <div
-      v-if="convert"
+      v-if="this.video.settings.convert"
       id="convert"
     >
       <p>The requested format is unavailable. The video will be downloaded as mkv and converted into {{ video.settings.ext }}. This may take a long time depending on the size of the video.</p>
@@ -92,15 +92,12 @@ export default {
   name: 'Setting',
   props: ['video'],
   computed: {
-    convert: function () {
-      if (this.video.settings.type === 'video') {
-        return !this.video.mp4_resolutions.includes(this.video.settings.quality) && this.video.settings.ext === 'mp4'
+    type: function () {
+      if (['mp3', 'm4a'].includes(this.video.settings.ext)) {
+        return 'audio'
       } else {
-        return this.video.settings.ext === 'mp3'
+        return 'video'
       }
-    },
-    audio: function () {
-      return ['mp3', 'm4a'].includes(this.video.settings.ext)
     },
     filename: {
       get () {
@@ -148,7 +145,7 @@ export default {
   },
   watch: {
     format () {
-      // watching computed for reactivity
+      // watching computed property, depending on ext and resolution for reactivity
       this.formatter()
     }
   },
@@ -157,58 +154,69 @@ export default {
   },
   methods: {
     formatter () {
-      let type
-      if (this.audio) {
-        type = 'audio'
-      } else {
-        type = 'video'
-      }
-
+      console.log('formatting')
       let formats = []
-      const extensions = {
-        mkv: ['webm', 'mp4'],
-        mp4: ['mp4'],
-        m4a: ['m4a'],
-        mp3: ['mp3']
-      }
-      let max = 0
-      let format
-      for (format of this.video.formats) {
-        // set video format
-        if (this.convert) {
-          if (format.format_note === this.video.settings.quality) {
-            formats[0] = format
-          }
-        } else {
-          if (format.format_note === this.video.settings.quality && extensions[this.video.settings.ext].includes(format.ext)) {
-            formats[0] = format
-          }
-        }
-
+      let convert = false
+      if (this.type === 'audio') {
         // set audio format
-        if (((format.type === 'audio' && format.filesize > max) || !format.filesize) && this.video.source === 'youtube') {
-          if (['mkv', 'mp3'].includes(format.ext) || this.convert) {
-            max = format.filesize
-            if (type === 'audio') {
-              formats[0] = format
-            } else {
-              formats[1] = format
-            }
+        let format
+        [ format, convert ] = this.GetAudio(this.ext)
+        formats.push(format)
+      } else {
+        // set video format
+        let FormatWebm
+        let FormatMp4
+        for (let format of this.video.formats) {
+          console.log(format.ext, format.format_note)
+          if (format.ext === 'webm' && format.format_note === this.video.settings.quality) {
+            FormatWebm = format
+          } else if (format.ext === 'mp4' && format.format_note === this.video.settings.quality) {
+            FormatMp4 = format
+          }
+        }
+        console.log(FormatWebm, FormatMp4)
+        if (this.ext === 'mp4') {
+          if (FormatMp4) {
+            formats.push(FormatMp4)
+            convert = false
           } else {
-            if (format.ext === 'm4a') {
-              max = format.filesize
-              if (type === 'audio') {
-                formats[0] = format
-              } else {
-                formats[1] = format
-              }
-            }
+            formats.push(FormatWebm)
+            convert = true
+            formats.push(this.GetAudio('webm')[0])
+            // set audio format
+          }
+        } else if (this.ext === 'mkv') {
+          if (FormatWebm) {
+            formats.push(FormatWebm)
+            formats.push(this.GetAudio('webm')[0])
+            convert = false
+          } else {
+            formats.push(FormatMp4)
           }
         }
       }
-      this.$emit('update-settings', {id: this.video.id, format: formats, type: type})
+      console.log('format: ', formats)
+      this.$emit('update-settings', {id: this.video.id, format: formats, type: this.type})
       this.$emit('update-format')
-      this.$emit('update-settings', {id: this.video.id, convert: this.convert})
+      this.$emit('update-settings', {id: this.video.id, convert: convert})
+    },
+    GetAudio (PrefExt) {
+      let FormatCorrectExt
+      let FormatIncorrectExt
+      for (let format of this.video.formats) {
+        if (format.type === 'audio') {
+          if (format.ext === PrefExt) {
+            FormatCorrectExt = format
+          } else {
+            FormatIncorrectExt = format
+          }
+        }
+      }
+      if (FormatCorrectExt) {
+        return [FormatCorrectExt, false]
+      } else {
+        return [FormatIncorrectExt, true]
+      }
     },
     over (id) {
       document.getElementById(id).style.display = 'block'

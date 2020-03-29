@@ -62,15 +62,11 @@ export default {
             }
             el.filesize = 'unknown'
             el.resolutions = []
-            el.mp4_resolutions = []
             el.status = 'ready to download'
             el.progress = 0
             el.formats.forEach(format => {
               if (!el.resolutions.includes(format.format_note) && format.type === 'video') {
                 el.resolutions.push(format.format_note)
-              }
-              if (format.ext === 'mp4') {
-                el.mp4_resolutions.push(format.format_note)
               }
             })
             if (el.resolutions.includes('1080p')) {
