@@ -154,7 +154,6 @@ export default {
   },
   methods: {
     formatter () {
-      console.log('formatting')
       let formats = []
       let convert = false
       if (this.type === 'audio') {
@@ -167,14 +166,12 @@ export default {
         let FormatWebm
         let FormatMp4
         for (let format of this.video.formats) {
-          console.log(format.ext, format.format_note)
           if (format.ext === 'webm' && format.format_note === this.video.settings.quality) {
             FormatWebm = format
           } else if (format.ext === 'mp4' && format.format_note === this.video.settings.quality) {
             FormatMp4 = format
           }
         }
-        console.log(FormatWebm, FormatMp4)
         if (this.ext === 'mp4') {
           if (FormatMp4) {
             formats.push(FormatMp4)
@@ -195,7 +192,6 @@ export default {
           }
         }
       }
-      console.log('format: ', formats)
       this.$emit('update-settings', {id: this.video.id, format: formats, type: this.type})
       this.$emit('update-format')
       this.$emit('update-settings', {id: this.video.id, convert: convert})

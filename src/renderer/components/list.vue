@@ -7,7 +7,7 @@
       </p>
     </div>
     <div v-if="update && status === ''" class="info" id="updateMessage">
-      <p>An update is available! Start the update by clicking <a href="https://jaguardownloader.netlify.com/#download" target="_blank" @click="closer">this link</a>.</p>
+      <p>An update is available! Start the update by clicking <button @click="OpenSite" class="link"><p>This link</p></button>.</p>
     </div>
     <addVideo
       ref="addVideo"
@@ -37,6 +37,7 @@
 <script>
 import addVideo from './addVideo'
 import videoItem from './videoItem'
+const { shell } = require('electron')
 export default {
   name: 'List',
   components: {
@@ -52,11 +53,8 @@ export default {
       // displays error message when necessary
       this.$refs.addVideo.invalid(valid)
     },
-    closer () {
-      console.log('closing')
-      fetch('http://127.0.0.1:5000/close', {
-        method: 'GET'
-      })
+    OpenSite () {
+      shell.openExternal('https://jaguardownloader.netlify.com/#download')
     }
   }
 }
@@ -114,5 +112,16 @@ export default {
   #finished p{
     font-size: 2rem;
     color: var(--text-grey);
+  }
+ .link{
+    border: none;
+    background: none;
+  }
+  .link p{
+    color: #0077FF;
+    text-decoration: underline;
+  }
+  .link:hover{
+    background-color: transparent;
   }
 </style>

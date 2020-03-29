@@ -7,7 +7,7 @@
       <p>location:</p>
       <button
         class="link"
-        @click="$emit('set-folder')"
+        @click="SetFolder"
       >
         <p>{{ folder }}</p>
       </button>
@@ -23,12 +23,21 @@
 </template>
 
 <script>
+const { dialog } = require('electron').remote
 export default {
   name: 'General',
-  components: {
-
-  },
-  props: ['folder', 'status']
+  props: ['folder', 'status'],
+  methods: {
+    SetFolder () {
+      dialog.showOpenDialog({
+        properties: ['openDirectory']
+      }, (dir) => {
+        if (dir) {
+          this.$emit('set-folder', dir[0])
+        }
+      })
+    }
+  }
 }
 </script>
 <style scoped>

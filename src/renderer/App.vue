@@ -24,7 +24,7 @@
 import list from './components/list.vue'
 import settings from './components/settings.vue'
 import general from './components/general.vue'
-
+const urllib = require('urllib')
 export default {
   name: 'App',
   components: {
@@ -38,39 +38,25 @@ export default {
       folder: 'C:/users/',
       current: '', // currently selected video
       status: '',
-      version: 0.1,
+      version: 0.3,
       update: false
     }
   },
   created: function () {
-    window.addEventListener('beforeunload', () => {
-      console.log('unloading')
-      fetch('http://127.0.0.1:5000/close', {
-        method: 'GET'
-      })
-    })
-
-    fetch('http://127.0.0.1:5000/defaultpath', {
-      method: 'GET'
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        this.folder = data
-      })
-      .catch((error) => console.error(error))
-
-    fetch('http://127.0.0.1:5000/version', {
-      method: 'GET'
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.version !== this.version) {
+    urllib.request('https://jaguardownloader.netlify.com/version.json')
+      .then(result => {
+        let data = JSON.parse(result.data.toString())
+        if (data.version > this.version) {
           this.update = true
         }
       })
-      .catch((err) => {
+      .catch(function (err) {
         console.error(err)
       })
+    // this.folder =
+    // if (data.version !== this.version) {
+    //   this.update = true
+    // }
   },
   methods: {
     changeCurrent (video) {
@@ -125,43 +111,8 @@ export default {
         this.$socket.emit('start', { settings: AllSettings, path: this.folder })
       }
     },
-    set_folder () {
-      document.getElementsByClassName('link')[0].style.cursor = 'wait'
-      fetch('http://127.0.0.1:5000/directory', {
-        method: 'GET'
-      })
-        .then((res) => res.json())
-        .then((path) => {
-          document.getElementsByClassName('link')[0].style.cursor = 'pointer'
-          if (path.length > 2) {
-            this.folder = path
-          }
-        })
-        .catch((err) => alert(err))
-    }
-  },
-  sockets: {
-    connect: function () {
-      console.log('socket connected!')
-    },
-    progress: function (data) {
-      for (let id in data) {
-        this.videos.forEach((video) => {
-          if (video.id === id) {
-            video.progress = data[id].progress
-            this.status = data[id].status
-            if (
-              data[id].status === 'FINISHED!' &&
-              this.videos.every((video) => video.progress === 100)
-            ) {
-              this.deleteVideo(id)
-            }
-          }
-        })
-      }
-    },
-    errorlog: function (data) {
-      alert(`An error occurred: \n ${data.type}: ${data.msg}`)
+    set_folder (dir) {
+      this.folder = dir
     }
   }
 }
