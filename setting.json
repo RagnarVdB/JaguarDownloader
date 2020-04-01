@@ -1,0 +1,29 @@
+{
+  "ext": "mkv",
+  "type": "video",
+  "tag": false,
+  "tags": {},
+  "filename": "[4k, 60 fps] Arrival of a Train at La Ciotat (The Lumière Brothers, 1896)",
+  "duration": 77,
+  "quality": "480p",
+  "format": [
+    {
+      "id": "244",
+      "ext": "webm",
+      "filesize": 6364252,
+      "format_note": "480p",
+      "fps": 30,
+      "type": "video"
+    },
+    {
+      "id": "251",
+      "ext": "webm",
+      "filesize": 699251,
+      "format_note": "tiny",
+      "fps": null,
+      "type": "audio"
+    }
+  ],
+  "convert": false,
+  "id": "3RYNThid23g"
+}
