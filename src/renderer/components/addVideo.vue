@@ -58,7 +58,8 @@ export default {
               tag: false,
               tags: {},
               filename: el.title.replace(/[/\\?%*:|"<>]/g, ''),
-              duration: el.duration
+              duration: el.duration,
+              extractor: el.extractor
             }
             el.filesize = 'unknown'
             el.resolutions = []

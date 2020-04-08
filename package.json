@@ -53,6 +53,7 @@
     }
   },
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.0.20",
     "urllib": "^2.34.2",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",

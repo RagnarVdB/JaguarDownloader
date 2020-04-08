@@ -1,4 +1,5 @@
 const youtubedl = require('youtube-dl')
+const ffmpeg = require('@ffmpeg-installer/ffmpeg')
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
@@ -52,7 +53,7 @@ function downloader (url, info, savepath, progressCallback) {
           (needsConvert && doubleStream) ? ['-i', videoName, '-i', audioName, filename]
             : (doubleStream) ? ['-i', videoName, '-i', audioName, '-codec', 'copy', filename]
               : ['-i', videoName, filename]
-        const cmd = spawn('ffmpeg', opts)
+        const cmd = spawn(ffmpeg.path, opts)
 
         cmd.stdout.on('data', data => {
           console.log(`stdout: ${data}`)
@@ -106,8 +107,8 @@ function downloader (url, info, savepath, progressCallback) {
   }
 
   download()
-    // .then(convert)
-    // .then(move)
+    .then(convert)
+    .then(move)
     .then(() => console.log('done merging'))
     .catch(err => console.error(err))
 }

@@ -74,6 +74,7 @@ const YoutubeHandler = (video) => {
     thumbnail: video.thumbnail,
     date,
     duration: video._duration_raw,
+    extractor: video.extractor_key,
     progress: 0,
     settings: {},
     formats
@@ -115,6 +116,7 @@ const VrtHandler = (video) => {
     thumbnail: video.thumbnail,
     date: null,
     duration: video._duration_raw,
+    extractor: video.extractor_key,
     progress: 0,
     settings: {},
     formats
