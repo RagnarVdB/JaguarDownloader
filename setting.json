@@ -3,27 +3,20 @@
   "type": "video",
   "tag": false,
   "tags": {},
-  "filename": "[4k, 60 fps] Arrival of a Train at La Ciotat (The Lumière Brothers, 1896)",
-  "duration": 77,
-  "quality": "1080p",
+  "filename": "Is hier nog ergens schone lucht",
+  "duration": 189.13,
+  "extractor": "Canvas",
+  "quality": "540p",
   "format": [
     {
-      "id": "248",
-      "ext": "webm",
-      "filesize": 22270552,
-      "format_note": "1080p",
-      "fps": 30,
+      "format_note": "540p",
+      "ext": "mp4",
+      "fps": 25,
+      "id": "MPEG_DASH-video=1990517",
+      "filesize": null,
       "type": "video"
-    },
-    {
-      "id": "251",
-      "ext": "webm",
-      "filesize": 699251,
-      "format_note": "tiny",
-      "fps": null,
-      "type": "audio"
     }
   ],
   "convert": false,
-  "id": "3RYNThid23g"
+  "id": "pbs-pub-8ffc60ab-aeaa-445d-b35b-ba5199e6ff70$vid-be1e5d7a-e34f-4012-bead-cf48b838fdc2"
 }

@@ -1,46 +1,60 @@
-const youtubedl = require('youtube-dl')
+// const youtubedl = require('youtube-dl')
 const ffmpeg = require('@ffmpeg-installer/ffmpeg')
 const fs = require('fs')
-const os = require('os')
+// const os = require('os')
 const path = require('path')
 const { spawn } = require('child_process')
 
-const tmpdir = path.join(os.tmpdir(), 'jaguardownloader')
+const ytdlPath = '.\\node_modules\\youtube-dl\\bin\\youtube-dl.exe'
+// const tmpdir = path.join(os.tmpdir(), 'jaguardownloader')
 
-function downloader (url, info, savepath, progressCallback) {
+function downloader (url, info, savePath, progressCallback) {
   const needsConvert = info.convert
   const doubleStream = info.format.length === 2
-  const needsFFMPEG = needsConvert || doubleStream
-  const videoName = needsFFMPEG ? `${info.id}_video.${info.format[0].ext}` : `${info.id}_video.${info.ext}`
-  const audioName = (needsConvert && doubleStream) ? `${info.id}_audio.${info.format[1].ext}` : `${info.id}_audio.${info.ext}`
+  const needsFFMPEG = needsConvert || doubleStream || info.format[0].ext !== info.ext
+  const firstStreamName = `${info.id}_first.${info.format[0].ext}`
+  const secondStreamName = (doubleStream) ? `${info.id}_second.${info.format[1].ext}` : null
   const filename = `${info.filename}.${info.ext}`
+
   const download = () => {
     return new Promise((resolve, reject) => {
-      const video = youtubedl(url, ['-f', info.format[0].id], { cwd: tmpdir })
-      let size
-      let pos = 0
-      video.on('info', (data) => {
-        console.log('Download started')
-        size = data.size
-        video.pipe(fs.createWriteStream(videoName))
-      })
+      const firstStream = spawn(ytdlPath, ['--newline', '-f', info.format[0].id, '--output', firstStreamName, url])
 
-      video.on('data', chunk => {
-        pos += chunk.length
-        if (size) {
-          const perc = Math.round((pos / size) * 100)
-          progressCallback('downloading', perc)
+      firstStream.stdout.on('data', data => {
+        if (data.includes('[download]') && data.includes('%')) {
+          const progressString = String(data).split(' ').filter(el => el.includes('%'))[0]
+          const perc = progressString.slice(0, progressString.length - 1)
+          progressCallback('downloading', Math.round(perc))
         }
       })
 
-      video.on('end', () => {
+      firstStream.stderr.on('data', data => {
+        console.log(`stderr: ${data}`)
+      })
+
+      firstStream.on('error', (error) => {
+        reject(error.message)
+      })
+
+      firstStream.on('close', code => {
+        console.log(`child process exited with code ${code}`)
+        console.log('finished downloading')
         resolve()
       })
 
       if (info.format.length === 2) {
-        const audio = youtubedl(url, ['-f', info.format[1].id], {cwd: tmpdir})
-        audio.on('info', () => {
-          audio.pipe(fs.createWriteStream(audioName))
+        const secondStream = spawn(ytdlPath, ['--newline', '-f', info.format[1].id, '--output', secondStreamName, url])
+        secondStream.stderr.on('data', data => {
+          console.log(`stderr: ${data}`)
+        })
+
+        secondStream.on('error', (error) => {
+          console.log(`error: ${error.message}`)
+          reject(error.message)
+        })
+
+        secondStream.on('close', code => {
+          console.log(`child process exited with code ${code}`)
         })
       }
     })
@@ -49,10 +63,14 @@ function downloader (url, info, savepath, progressCallback) {
   const convert = () => {
     return new Promise((resolve, reject) => {
       if (needsFFMPEG) {
+        console.log('started converting')
         const opts =
-          (needsConvert && doubleStream) ? ['-i', videoName, '-i', audioName, filename]
-            : (doubleStream) ? ['-i', videoName, '-i', audioName, '-codec', 'copy', filename]
-              : ['-i', videoName, filename]
+          (needsConvert && doubleStream) ? ['-i', firstStreamName, '-i', secondStreamName, filename]
+            : (doubleStream) ? ['-i', firstStreamName, '-i', secondStreamName, '-codec', 'copy', filename]
+              : (needsConvert) ? ['-i', firstStreamName, filename]
+                : ['-i', firstStreamName, '-codec', 'copy', filename]
+        console.log(opts)
+
         const cmd = spawn(ffmpeg.path, opts)
 
         cmd.stdout.on('data', data => {
@@ -65,6 +83,7 @@ function downloader (url, info, savepath, progressCallback) {
             const perc = getPerc(frame, info.format[0].fps, info.duration)
             progressCallback('merging/converting', perc)
           } else {
+            // progress cannot be determined
             progressCallback('converting', 40)
           }
         })
@@ -80,16 +99,17 @@ function downloader (url, info, savepath, progressCallback) {
             reject(new Error('conversion/merging failed'))
           }
           // remove old files
-          fs.unlink(videoName, err => {
+          fs.unlink(firstStreamName, err => {
             if (err) console.error(err)
             resolve()
           })
           if (doubleStream) {
-            fs.unlink(audioName, err => { if (err) console.error(err) })
+            fs.unlink(secondStreamName, err => { if (err) console.error(err) })
           }
         })
       } else {
-        fs.rename(videoName, filename, err => {
+        console.log('not converting')
+        fs.rename(firstStreamName, filename, err => {
           if (err) reject(new Error('couldn\'t rename file: ' + err.message))
           else resolve()
         })
@@ -98,8 +118,9 @@ function downloader (url, info, savepath, progressCallback) {
   }
 
   const move = () => {
+    console.log('moving file')
     return new Promise((resolve, reject) => {
-      fs.rename(filename, path.join(savepath, filename), (err) => {
+      fs.rename(filename, path.join(savePath, filename), (err) => {
         if (err) reject(new Error('error moving file: ' + err.message))
         else resolve()
       })
@@ -109,7 +130,10 @@ function downloader (url, info, savepath, progressCallback) {
   download()
     .then(convert)
     .then(move)
-    .then(() => console.log('done merging'))
+    .then(() => {
+      console.log('finished !')
+      progressCallback('finished', 100)
+    })
     .catch(err => console.error(err))
 }
 
@@ -121,15 +145,14 @@ function parseOutput (output) {
 }
 
 function getPerc (frame, fps, duration) {
-  console.log(frame, fps, duration)
   return Math.round(frame / (duration * fps) * 100)
 }
 
-if (require.main === module) {
-  const info = JSON.parse(fs.readFileSync('setting.json').toString())
-  downloader('https://www.vrt.be/vrtnu/a-z/wat-zegt-de-wetenschap/2019-2020/wat-zegt-de-wetenschap-d20191230-s2019-2020a5/', info, 'C:/users/ragna/desktop', (status, progress) => {
-    console.log(status, progress)
-  })
-}
+// if (require.main === module) {
+//   const info = JSON.parse(fs.readFileSync('setting.json').toString())
+//   downloader('https://www.vrt.be/vrtnu/a-z/wat-zegt-de-wetenschap/2019-2020/wat-zegt-de-wetenschap-d20191230-s2019-2020a5/', info, 'C:/users/ragna/desktop', (status, progress) => {
+//     console.log(status, progress)
+//   })
+// }
 
-// export { downloader }
+export default downloader

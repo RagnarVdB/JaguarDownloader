@@ -24,13 +24,11 @@
 import list from './components/list.vue'
 import settings from './components/settings.vue'
 import general from './components/general.vue'
-// import downloader from './functions/downloader'
+import downloader from './functions/downloader'
 
-// const { Stream } = require('stream')
 const urllib = require('urllib')
 const os = require('os')
 const path = require('path')
-const fs = require('fs')
 
 export default {
   name: 'App',
@@ -104,24 +102,20 @@ export default {
         }
       })
     },
-    async start () {
-      // if (this.status === '' || this.status === 'ready to download') {
-      //   this.status = 'downloading ...'
-      //   const streams = []
-      //   for (let video of this.videos) {
-      //     const stream = new Stream.Readable({
-      //       read () {},
-      //       objectMode: true
-      //     })
-      //     streams.push(stream)
-      //     downloader(video.url, {...video.settings, id: video.id}, stream)
-      //     stream.on('readable', (data) => {
-      //       console.log(video.id, data.status, data.progress)
-      //     })
-      //   }
-      // }
-      const video = this.videos[0]
-      fs.writeFile('setting.json', JSON.stringify({...video.settings, id: video.id}), 'utf-8', err => console.log(err))
+    start () {
+      if (this.status === '' || this.status === 'ready to download') {
+        this.status = 'downloading ...'
+        for (let video of this.videos) {
+          console.log(video.url, video.settings, this.folder)
+          downloader(video.url, video.settings, this.folder, (status, progress) => {
+            console.log(`${status}: ${progress}`)
+            video.progress = progress
+            this.status = status
+          })
+        }
+      }
+      // const video = this.videos[0]
+      // fs.writeFile('setting.json', JSON.stringify({...video.settings, id: video.id}), 'utf-8', err => console.log(err))
     },
     set_folder (dir) {
       this.folder = dir

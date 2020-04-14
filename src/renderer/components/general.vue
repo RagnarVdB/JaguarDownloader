@@ -13,7 +13,7 @@
       </button>
       <button
         id="start"
-        :class="{ greyed: status !=='ready to download' && status !=='' }"
+        :class="{ greyed: status !=='ready to download' }"
         @click="$emit('start')"
       >
         start

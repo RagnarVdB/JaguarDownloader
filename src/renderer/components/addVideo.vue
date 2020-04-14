@@ -53,6 +53,7 @@ export default {
         .then(data => {
           data.forEach(el => {
             el.settings = {
+              id: el.id,
               ext: 'mkv',
               type: 'video',
               tag: false,
@@ -61,6 +62,7 @@ export default {
               duration: el.duration,
               extractor: el.extractor
             }
+            el.url = this.url
             el.filesize = 'unknown'
             el.resolutions = []
             el.status = 'ready to download'
