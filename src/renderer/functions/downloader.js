@@ -8,7 +8,7 @@ const { spawn } = require('child_process')
 const ytdlPath = '.\\node_modules\\youtube-dl\\bin\\youtube-dl.exe'
 // const tmpdir = path.join(os.tmpdir(), 'jaguardownloader')
 
-function downloader (url, info, savePath, progressCallback) {
+function downloader (url, info, savePath, progressCallback, errorCallback) {
   const needsConvert = info.convert
   const doubleStream = info.format.length === 2
   const needsFFMPEG = needsConvert || doubleStream || info.format[0].ext !== info.ext
@@ -19,7 +19,7 @@ function downloader (url, info, savePath, progressCallback) {
   const download = () => {
     return new Promise((resolve, reject) => {
       const firstStream = spawn(ytdlPath, ['--newline', '-f', info.format[0].id, '--output', firstStreamName, url])
-
+      console.log((ytdlPath, ['--newline', '-f', info.format[0].id, '--output', firstStreamName, url]))
       firstStream.stdout.on('data', data => {
         if (data.includes('[download]') && data.includes('%')) {
           const progressString = String(data).split(' ').filter(el => el.includes('%'))[0]
@@ -44,6 +44,7 @@ function downloader (url, info, savePath, progressCallback) {
 
       if (info.format.length === 2) {
         const secondStream = spawn(ytdlPath, ['--newline', '-f', info.format[1].id, '--output', secondStreamName, url])
+        console.log(ytdlPath, ['--newline', '-f', info.format[1].id, '--output', secondStreamName, url])
         secondStream.stderr.on('data', data => {
           console.log(`stderr: ${data}`)
         })
@@ -72,6 +73,7 @@ function downloader (url, info, savePath, progressCallback) {
         console.log(opts)
 
         const cmd = spawn(ffmpeg.path, opts)
+        console.log(ffmpeg.path, opts)
 
         cmd.stdout.on('data', data => {
           console.log(`stdout: ${data}`)
@@ -100,11 +102,11 @@ function downloader (url, info, savePath, progressCallback) {
           }
           // remove old files
           fs.unlink(firstStreamName, err => {
-            if (err) console.error(err)
+            if (err) reject(err)
             resolve()
           })
           if (doubleStream) {
-            fs.unlink(secondStreamName, err => { if (err) console.error(err) })
+            fs.unlink(secondStreamName, err => { if (err) reject(err) })
           }
         })
       } else {
@@ -127,14 +129,20 @@ function downloader (url, info, savePath, progressCallback) {
     })
   }
 
+  const wait = () => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => resolve(), 1000)
+    })
+  }
   download()
+    .then(wait) // give youtube-dl the time to finish
     .then(convert)
     .then(move)
     .then(() => {
       console.log('finished !')
       progressCallback('finished', 100)
     })
-    .catch(err => console.error(err))
+    .catch(err => errorCallback(err))
 }
 
 function parseOutput (output) {

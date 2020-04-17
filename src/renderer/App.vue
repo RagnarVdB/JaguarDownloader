@@ -29,6 +29,7 @@ import downloader from './functions/downloader'
 const urllib = require('urllib')
 const os = require('os')
 const path = require('path')
+const { dialog } = require('electron').remote
 
 export default {
   name: 'App',
@@ -111,6 +112,10 @@ export default {
             console.log(`${status}: ${progress}`)
             video.progress = progress
             this.status = status
+          },
+          (err) => {
+            dialog.showErrorBox(`Something went wrong downloading '${video.title}'`,
+              `${err} `)
           })
         }
       }

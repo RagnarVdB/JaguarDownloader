@@ -68,7 +68,7 @@ export default {
             el.status = 'ready to download'
             el.progress = 0
             el.formats.forEach(format => {
-              if (!el.resolutions.includes(format.format_note) && format.type === 'video') {
+              if (!el.resolutions.includes(format.format_note) && (format.type === 'video' || format.type === 'both')) {
                 el.resolutions.push(format.format_note)
               }
             })

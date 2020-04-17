@@ -1,3 +1,5 @@
+'use strict'
+
 const ytdl = require('youtube-dl')
 // const fs = require('fs')
 
@@ -26,40 +28,20 @@ const GetInfo = (url) => {
 }
 
 const YoutubeHandler = (video) => {
-  const VideoFormats = [
-    '144p',
-    '240p',
-    '360p',
-    '480p',
-    '720',
-    '1080p',
-    '1440p',
-    '2160p',
-    'DASH video'
-  ]
-  const AudioFormats = ['DASH audio', 'tiny']
-
   let formats = []
   for (let format of video.formats) {
-    if (VideoFormats.includes(format.format_note)) {
-      formats.push({
-        id: format.format.split(' ')[0],
-        ext: format.ext,
-        filesize: format.filesize,
-        format_note: format.format_note,
-        fps: format.fps,
-        type: 'video'
-      })
-    } else if (AudioFormats.includes(format.format_note)) {
-      formats.push({
-        id: format.format.split(' ')[0],
-        ext: format.ext,
-        filesize: format.filesize,
-        format_note: format.format_note,
-        fps: format.fps,
-        type: 'audio'
-      })
-    }
+    const type = (format.vcodec !== 'none' && format.acodec !== 'none') ? 'both'
+      : (format.vcodec !== 'none') ? 'video'
+        : 'audio'
+
+    formats.push({
+      id: format.format.split(' ')[0],
+      ext: format.ext,
+      filesize: format.filesize,
+      format_note: format.format_note,
+      fps: format.fps,
+      type
+    })
   }
   let date =
     video.upload_date.slice(0, 4) +
@@ -125,7 +107,7 @@ const VrtHandler = (video) => {
 
 if (require.main === module) {
   const url =
-    'https://www.youtube.com/watch?v=vJLxguyxNU0'
+    'https://www.youtube.com/watch?v=3RYNThid23g'
   GetInfo(url)
     .then((res) => {
       console.log(res)

@@ -154,6 +154,7 @@ export default {
   },
   methods: {
     formatter () {
+      /*
       let formats = []
       let convert = false
       if (this.type === 'audio') {
@@ -175,6 +176,9 @@ export default {
         if (this.ext === 'mp4') {
           if (FormatMp4) {
             formats.push(FormatMp4)
+            if (FormatMp4.type !== 'both') {
+              formats.push(this.GetAudio('mp4'))
+            }
             convert = false
           } else {
             formats.push(FormatWebm)
@@ -195,25 +199,92 @@ export default {
       this.$emit('update-settings', {id: this.video.id, format: formats, type: this.type})
       this.$emit('update-format')
       this.$emit('update-settings', {id: this.video.id, convert: convert})
-    },
-    GetAudio (PrefExt) {
-      let FormatCorrectExt
-      let FormatIncorrectExt
-      for (let format of this.video.formats) {
-        if (format.type === 'audio') {
-          if (format.ext === PrefExt) {
-            FormatCorrectExt = format
-          } else {
-            FormatIncorrectExt = format
+      */
+      const preferred = {
+        mkv: ['webm', 'mkv'],
+        mp4: ['mp4', 'm4a'],
+        m4a: ['m4a'],
+        mp3: ['mp3']
+      }
+
+      const compatible = {
+        mkv: ['webm', 'mkv', 'mp4', 'm4a', 'mp3'],
+        mp4: ['mp4', 'm4a'],
+        m4a: ['m4a'],
+        mp3: ['mp3']
+      }
+      const selectedFormats = []
+      let convert = false
+
+      if (this.type === 'video') {
+        // set video format
+        let preferredFormat = null
+        let compatibleFormat = null
+        let incompatibleFormat = null
+        for (const format of this.video.formats) {
+          if (preferred[this.ext].includes(format.ext) && format.format_note === this.video.settings.quality && format.type !== 'audio') {
+            preferredFormat = format
+          } else if (compatible[this.ext].includes(format.ext) && format.format_note === this.video.settings.quality && format.type !== 'audio') {
+            compatibleFormat = format
+          } else if (format.format_note === this.video.settings.quality && format.type !== 'audio') {
+            incompatibleFormat = format
           }
         }
+        if (preferredFormat) {
+          selectedFormats.push(preferredFormat)
+        } else if (compatibleFormat) {
+          selectedFormats.push(compatibleFormat)
+        } else {
+          selectedFormats.push(incompatibleFormat)
+          convert = true
+        }
       }
-      if (FormatCorrectExt) {
-        return [FormatCorrectExt, false]
-      } else {
-        return [FormatIncorrectExt, true]
+
+      if (this.type === 'audio' || (selectedFormats.length === 1 && selectedFormats[0].type !== 'both')) {
+        // set audio
+        let preferredFormat = null
+        let compatibleFormat = null
+        let incompatibleFormat = null
+        for (const format of this.video.formats) {
+          if (format.type === 'audio' && preferred[this.ext].includes(format.ext)) {
+            preferredFormat = format
+          } else if (format.type === 'audio' && compatible[this.ext].includes(format.ext)) {
+            compatibleFormat = format
+          } else if (format.type === 'audio') {
+            incompatibleFormat = format
+          }
+        }
+        if (preferredFormat) {
+          selectedFormats.push(preferredFormat)
+        } else if (compatibleFormat) {
+          selectedFormats.push(compatibleFormat)
+        } else {
+          selectedFormats.push(incompatibleFormat)
+          convert = true
+        }
       }
+      this.$emit('update-settings', {id: this.video.id, format: selectedFormats, type: this.type})
+      this.$emit('update-format')
+      this.$emit('update-settings', {id: this.video.id, convert: convert})
     },
+    // GetAudio (PrefExt) {
+    //   let FormatCorrectExt
+    //   let FormatIncorrectExt
+    //   for (let format of this.video.formats) {
+    //     if (format.type === 'audio') {
+    //       if (format.ext === PrefExt) {
+    //         FormatCorrectExt = format
+    //       } else {
+    //         FormatIncorrectExt = format
+    //       }
+    //     }
+    //   }
+    //   if (FormatCorrectExt) {
+    //     return [FormatCorrectExt, false]
+    //   } else {
+    //     return [FormatIncorrectExt, true]
+    //   }
+    // },
     over (id) {
       document.getElementById(id).style.display = 'block'
     },
