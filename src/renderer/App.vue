@@ -112,6 +112,10 @@ export default {
             console.log(`${status}: ${progress}`)
             video.progress = progress
             this.status = status
+            if (status === 'FINISHED!' && progress === 100) {
+              console.log('removing video')
+              this.deleteVideo(video.id)
+            }
           },
           (err) => {
             dialog.showErrorBox(`Something went wrong downloading '${video.title}'`,

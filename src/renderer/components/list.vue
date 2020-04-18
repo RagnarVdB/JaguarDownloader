@@ -27,9 +27,9 @@
           v-bind:current="current_id"
         />
       </div>
-    </div>
-    <div v-if="status === 'FINISHED!' && this.videos.length===0" id="finished">
+      <div v-if="status === 'FINISHED!' && this.videos.length===0" id="finished">
       <p>FINISHED!</p>
+    </div>
     </div>
   </div>
 </template>
@@ -108,6 +108,7 @@ export default {
   }
   #finished{
     margin-top: 100px;
+    text-align: center;
   }
   #finished p{
     font-size: 2rem;

@@ -91,8 +91,8 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
         })
 
         cmd.on('error', (error) => {
-          console.log(`error: ${error.message}`)
-          reject(new Error('conversion/merging failed'))
+          console.error(`error: ${error.message}`)
+          reject(new Error(`conversion/merging failed, ${error.message}`))
         })
 
         cmd.on('close', code => {
@@ -140,7 +140,7 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
     .then(move)
     .then(() => {
       console.log('finished !')
-      progressCallback('finished', 100)
+      progressCallback('FINISHED!', 100)
     })
     .catch(err => errorCallback(err))
 }

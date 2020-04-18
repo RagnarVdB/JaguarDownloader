@@ -49,7 +49,9 @@ export default {
       event.preventDefault()
       var animation = document.getElementsByClassName('lds-ellipsis')[0]
       animation.style.display = 'inline-block'
-      GetInfo(this.url)
+      const url = this.url // could change if user changes url too early
+      this.url = ''
+      GetInfo(url)
         .then(data => {
           data.forEach(el => {
             el.settings = {
@@ -62,7 +64,7 @@ export default {
               duration: el.duration,
               extractor: el.extractor
             }
-            el.url = this.url
+            el.url = url
             el.filesize = 'unknown'
             el.resolutions = []
             el.status = 'ready to download'
