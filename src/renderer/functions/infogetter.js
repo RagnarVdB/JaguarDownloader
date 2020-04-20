@@ -17,6 +17,8 @@ const GetInfo = (url) => {
         infos.push(YoutubeHandler(info))
       } else if (info.extractor_key === 'Canvas') {
         infos.push(VrtHandler(info))
+      } else {
+        reject(new Error('Couldn\'t get video info'))
       }
 
       // fs.writeFile('infos_youtube.json', JSON.stringify(infos), 'utf-8', (err) => console.log(err))

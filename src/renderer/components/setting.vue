@@ -7,7 +7,7 @@
           v-model="video.settings.filename"
           type="text"
         >
-        <img src="../assets/info.svg" alt="info" class="info" id="filename" @mouseover="over('filenametext')" @mouseout="out('filenametext')">
+        <img src="static/info.svg" alt="info" class="info" id="filename" @mouseover="over('filenametext')" @mouseout="out('filenametext')">
       </div>
       <div>
         <p>Format: </p>
@@ -28,7 +28,7 @@
             mp3
           </option>
         </select>
-        <img src="../assets/info.svg" alt="info" class="info" id="ext" @mouseover="over('exttext')" @mouseout="out('exttext')">
+        <img src="static/info.svg" alt="info" class="info" id="ext" @mouseover="over('exttext')" @mouseout="out('exttext')">
       </div>
       <div v-if="type === 'video' " class="tooltip">
         <p>Resolution: </p>
@@ -44,7 +44,7 @@
             {{ resolution }}
           </option>
         </select>
-        <img src="../assets/info.svg" alt="info" class="info" id="res" @mouseover="over('restext')" @mouseout="out('restext')">
+        <img src="static/info.svg" alt="info" class="info" id="res" @mouseover="over('restext')" @mouseout="out('restext')">
       </div>
       <div id="tooltiptexts">
         <p id="filenametext">Enter the filename without the extension</p>

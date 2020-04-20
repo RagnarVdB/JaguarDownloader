@@ -49,7 +49,7 @@ export default {
     }
   },
   created: function () {
-    urllib.request('https://jaguardownloader.netlify.com/version.json')
+    urllib.request('https://jaguardownloader.netlify.app/version.json')
       .then(result => {
         let data = JSON.parse(result.data.toString())
         if (data.version > this.version) {
@@ -127,6 +127,7 @@ export default {
       // fs.writeFile('setting.json', JSON.stringify({...video.settings, id: video.id}), 'utf-8', err => console.log(err))
     },
     set_folder (dir) {
+      console.log(__static)
       this.folder = dir
     }
   }

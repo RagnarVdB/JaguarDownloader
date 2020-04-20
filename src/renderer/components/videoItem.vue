@@ -21,7 +21,7 @@
       {{ video.settings.quality }}
     </p>
     <button @click="$emit('del-video', video.id)">  
-      <img src="../assets/delete.svg">
+      <img src="static/delete.svg">
     </button>
   </div>
 </template>

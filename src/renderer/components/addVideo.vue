@@ -53,33 +53,37 @@ export default {
       this.url = ''
       GetInfo(url)
         .then(data => {
-          data.forEach(el => {
-            el.settings = {
-              id: el.id,
-              ext: 'mkv',
-              type: 'video',
-              tag: false,
-              tags: {},
-              filename: el.title.replace(/[/\\?%*:|"<>]/g, ''),
-              duration: el.duration,
-              extractor: el.extractor
-            }
-            el.url = url
-            el.filesize = 'unknown'
-            el.resolutions = []
-            el.status = 'ready to download'
-            el.progress = 0
-            el.formats.forEach(format => {
-              if (!el.resolutions.includes(format.format_note) && (format.type === 'video' || format.type === 'both')) {
-                el.resolutions.push(format.format_note)
+          if (data) {
+            data.forEach(el => {
+              el.settings = {
+                id: el.id,
+                ext: 'mkv',
+                type: 'video',
+                tag: false,
+                tags: {},
+                filename: el.title.replace(/[/\\?%*:|"<>]/g, ''),
+                duration: el.duration,
+                extractor: el.extractor
+              }
+              el.url = url
+              el.filesize = 'unknown'
+              el.resolutions = []
+              el.status = 'ready to download'
+              el.progress = 0
+              el.formats.forEach(format => {
+                if (!el.resolutions.includes(format.format_note) && (format.type === 'video' || format.type === 'both')) {
+                  el.resolutions.push(format.format_note)
+                }
+              })
+              if (el.resolutions.includes('1080p')) {
+                el.settings.quality = '1080p'
+              } else {
+                el.settings.quality = el.resolutions[el.resolutions.length - 1]
               }
             })
-            if (el.resolutions.includes('1080p')) {
-              el.settings.quality = '1080p'
-            } else {
-              el.settings.quality = el.resolutions[el.resolutions.length - 1]
-            }
-          })
+          } else {
+            this.invalid(false)
+          }
           // stop loading animation
           animation.style.display = 'none'
           if (data.length > 1) {
@@ -93,8 +97,13 @@ export default {
           } else {
             this.$emit('add-video', data)
           }
+          this.invalid(true)
         })
-        .catch(err => console.error(err))
+        .catch(err => {
+          console.error(err)
+          this.invalid(false)
+          animation.style.display = 'none'
+        })
     },
     yes () {
       this.$emit('add-video', this.videos)

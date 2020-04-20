@@ -2,30 +2,29 @@
   <div id="info">
     <img :src="video.thumbnail">
     <div id="wrapper">
-      <div class="labels">
-        <p>Title:</p>
-        <p v-if="video.channel">
-          Channel:
-        </p>
-        <p v-if="video.date">
-          Date:
-        </p>
-        <p v-if="video.desc">
-          Description:
-        </p>
-      </div>
-      <div class="content">
-        <p>{{ video.title }}</p>
-        <p v-if="video.channel">
-          {{ video.channel }}
-        </p>
-        <p v-if="video.date">
-          {{ video.date }}
-        </p>
-        <p v-if="video.desc">
-          {{ video.desc }}
-        </p>
-      </div>
+      <p class="label">Title:</p>
+      <p class="content">{{ video.title }}</p>
+
+      <p v-if="video.channel" class="label">
+        Channel:
+      </p>
+      <p v-if="video.channel" class="content">
+        {{ video.channel }}
+      </p>
+
+      <p v-if="video.date" class="label">
+        Date:
+      </p>
+      <p v-if="video.date" class="content">
+        {{ video.date }}
+      </p>
+
+      <p v-if="video.desc" class="label">
+        Description:
+      </p>
+      <p v-if="video.desc" class="content">
+        {{ video.desc }}
+      </p>
     </div>
   </div>
 </template>
@@ -52,18 +51,20 @@ p{
   padding: 2.5%;
   height: fit-content;
   flex-grow: 0;
-  flex-shrink: 1;
 }
 
 #info > img{
   width: 100%;
   align-self: center;
+  max-height: 220px;
 }
 
 #wrapper{
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: 1fr 4fr;
   margin-bottom: 10px;
+  margin-top: 15px;
+  grid-gap: 10px 20px;
 }
 
 #wrapper > div{
@@ -74,15 +75,8 @@ p{
   margin-top: 10px;
 }
 
-.labels{
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+.label{
+  text-align: right;
 }
 
-.content{
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
 </style>
