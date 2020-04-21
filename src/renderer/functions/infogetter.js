@@ -2,7 +2,9 @@
 
 const ytdl = require('youtube-dl')
 // const fs = require('fs')
-
+ytdl.setYtdlBinary(
+  ytdl.getYtdlBinary().replace('app.asar', 'app.asar.unpacked')
+)
 const GetInfo = (url) => {
   return new Promise((resolve, reject) => {
     ytdl.getInfo(url, ['--yes-playlist'], (err, info) => {

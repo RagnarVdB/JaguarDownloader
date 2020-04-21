@@ -19,7 +19,7 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "jaguardownloader",
+    "productName": "Jaguar Downloader",
     "appId": "07811EB8-7E36-4973-80FD-A64D8A0E4EB6",
     "directories": {
       "output": "build"

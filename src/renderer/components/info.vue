@@ -53,10 +53,11 @@ p{
   flex-grow: 0;
 }
 
-#info > img{
+img {
   width: 100%;
+  max-height: 290px;
   align-self: center;
-  max-height: 220px;
+  object-fit: scale-down;
 }
 
 #wrapper{
@@ -65,6 +66,8 @@ p{
   margin-bottom: 10px;
   margin-top: 15px;
   grid-gap: 10px 20px;
+  justify-self: flex-end;
+  flex-grow: 0
 }
 
 #wrapper > div{

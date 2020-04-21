@@ -4,8 +4,8 @@ const fs = require('fs')
 // const os = require('os')
 const path = require('path')
 const { spawn } = require('child_process')
-
-const ytdlPath = '.\\node_modules\\youtube-dl\\bin\\youtube-dl.exe'
+const { getYtdlBinary } = require('youtube-dl')
+const ytdlPath = getYtdlBinary()
 // const tmpdir = path.join(os.tmpdir(), 'jaguardownloader')
 
 function downloader (url, info, savePath, progressCallback, errorCallback) {
@@ -18,6 +18,8 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
 
   const download = () => {
     return new Promise((resolve, reject) => {
+      let finishedFirst = false
+      let finishedSecond = false
       const firstStream = spawn(ytdlPath, ['--newline', '-f', info.format[0].id, '--output', firstStreamName, url])
       console.log((ytdlPath, ['--newline', '-f', info.format[0].id, '--output', firstStreamName, url]))
       firstStream.stdout.on('data', data => {
@@ -39,7 +41,8 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
       firstStream.on('close', code => {
         console.log(`child process exited with code ${code}`)
         console.log('finished downloading')
-        resolve()
+        finishedFirst = true
+        if (finishedSecond) resolve()
       })
 
       if (info.format.length === 2) {
@@ -55,7 +58,9 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
         })
 
         secondStream.on('close', code => {
+          finishedSecond = true
           console.log(`child process exited with code ${code}`)
+          if (finishedFirst) resolve()
         })
       }
     })

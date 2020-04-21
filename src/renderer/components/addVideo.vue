@@ -101,6 +101,7 @@ export default {
         })
         .catch(err => {
           console.error(err)
+          alert(err)
           this.invalid(false)
           animation.style.display = 'none'
         })
