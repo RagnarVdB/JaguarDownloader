@@ -1,20 +1,23 @@
-// const youtubedl = require('youtube-dl')
 const ffmpeg = require('@ffmpeg-installer/ffmpeg')
 const fs = require('fs')
-// const os = require('os')
 const path = require('path')
+const tmp = require('tmp')
 const { spawn } = require('child_process')
 const { getYtdlBinary } = require('youtube-dl')
+
 const ytdlPath = getYtdlBinary()
-// const tmpdir = path.join(os.tmpdir(), 'jaguardownloader')
+const ffmpegPath = ffmpeg.path.replace('app.asar', 'app.asar.unpacked')
+const tmpObj = tmp.dirSync({unsafeCleanup: true}) // allow tempfolder to be deleted even when download failed
+const tempDir = tmpObj.name
 
 function downloader (url, info, savePath, progressCallback, errorCallback) {
   const needsConvert = info.convert
   const doubleStream = info.format.length === 2
   const needsFFMPEG = needsConvert || doubleStream || info.format[0].ext !== info.ext
-  const firstStreamName = `${info.id}_first.${info.format[0].ext}`
-  const secondStreamName = (doubleStream) ? `${info.id}_second.${info.format[1].ext}` : null
+  const firstStreamName = path.join(tempDir, `${info.id}_first.${info.format[0].ext}`)
+  const secondStreamName = (doubleStream) ? path.join(tempDir, `${info.id}_second.${info.format[1].ext}`) : null
   const filename = `${info.filename}.${info.ext}`
+  const filePath = path.join(tempDir, filename)
 
   const download = () => {
     return new Promise((resolve, reject) => {
@@ -71,14 +74,14 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
       if (needsFFMPEG) {
         console.log('started converting')
         const opts =
-          (needsConvert && doubleStream) ? ['-i', firstStreamName, '-i', secondStreamName, filename]
-            : (doubleStream) ? ['-i', firstStreamName, '-i', secondStreamName, '-codec', 'copy', filename]
-              : (needsConvert) ? ['-i', firstStreamName, filename]
-                : ['-i', firstStreamName, '-codec', 'copy', filename]
+          (needsConvert && doubleStream) ? ['-i', firstStreamName, '-i', secondStreamName, filePath]
+            : (doubleStream) ? ['-i', firstStreamName, '-i', secondStreamName, '-codec', 'copy', filePath]
+              : (needsConvert) ? ['-i', firstStreamName, filePath]
+                : ['-i', firstStreamName, '-codec', 'copy', filePath]
         console.log(opts)
 
-        const cmd = spawn(ffmpeg.path, opts)
-        console.log(ffmpeg.path, opts)
+        const cmd = spawn(ffmpegPath, opts)
+        console.log(ffmpegPath, opts)
 
         cmd.stdout.on('data', data => {
           console.log(`stdout: ${data}`)
@@ -116,7 +119,7 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
         })
       } else {
         console.log('not converting')
-        fs.rename(firstStreamName, filename, err => {
+        fs.rename(firstStreamName, filePath, err => {
           if (err) reject(new Error('couldn\'t rename file: ' + err.message))
           else resolve()
         })
@@ -127,7 +130,7 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
   const move = () => {
     console.log('moving file')
     return new Promise((resolve, reject) => {
-      fs.rename(filename, path.join(savePath, filename), (err) => {
+      fs.rename(filePath, path.join(savePath, filename), (err) => {
         if (err) reject(new Error('error moving file: ' + err.message))
         else resolve()
       })
@@ -146,6 +149,7 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
     .then(() => {
       console.log('finished !')
       progressCallback('FINISHED!', 100)
+      tmpObj.removeCallback()
     })
     .catch(err => errorCallback(err))
 }
