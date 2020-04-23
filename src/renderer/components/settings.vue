@@ -14,7 +14,7 @@
       v-if="video.id"
       id="size"
     >
-      <p v-if="filesize !== 'unknown'">Estimated file size: {{ filesize }} </p>
+      <p v-if="video.filesize !== 'unknown'">Estimated file size: {{ video.filesize }} </p>
     </div>
   </div>
 </template>
@@ -46,7 +46,7 @@ export default {
         } else {
           filesize = Math.round((format[0].filesize + format[1].filesize) / 1000000)
         }
-        this.filesize = `${filesize} MB`
+        this.video.filesize = `${filesize} MB`
       }
     }
   }
