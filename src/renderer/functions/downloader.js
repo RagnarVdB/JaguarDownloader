@@ -42,17 +42,24 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
       })
 
       firstStream.on('close', code => {
-        console.log(`child process exited with code ${code}`)
-        console.log('finished downloading')
         finishedFirst = true
-        if (finishedSecond) resolve()
+        console.log(`child process exited with code ${code}`)
+        console.log('finished downloading video')
+        if (finishedSecond || !doubleStream) resolve()
       })
 
-      if (info.format.length === 2) {
+      if (doubleStream) {
         const secondStream = spawn(ytdlPath, ['--newline', '-f', info.format[1].id, '--output', secondStreamName, url])
         console.log(ytdlPath, ['--newline', '-f', info.format[1].id, '--output', secondStreamName, url])
+
         secondStream.stderr.on('data', data => {
           console.log(`stderr: ${data}`)
+        })
+
+        // process doesn't close when stdout isn't read.
+        // I have no idea why
+        secondStream.stdout.on('data', data => {
+          console.log(String(data))
         })
 
         secondStream.on('error', (error) => {
@@ -63,6 +70,7 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
         secondStream.on('close', code => {
           finishedSecond = true
           console.log(`child process exited with code ${code}`)
+          console.log('finished downloading audio')
           if (finishedFirst) resolve()
         })
       }
