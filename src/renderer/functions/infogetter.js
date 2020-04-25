@@ -16,17 +16,26 @@ const GetInfo = (url) => {
           infos.push(YoutubeHandler(video))
         }
       } else if (info.extractor_key === 'Youtube') {
-        infos.push(YoutubeHandler(info))
+        const formattedInfo = YoutubeHandler(info)
+        if (formattedInfo) {
+          infos.push(formattedInfo)
+        }
       } else if (info.extractor_key === 'Canvas') {
-        infos.push(VrtHandler(info))
+        const formattedInfo = VrtHandler(info)
+        if (formattedInfo) {
+          infos.push(formattedInfo)
+        }
       } else {
-        reject(new Error('Couldn\'t get video info'))
+        reject(new Error('Site not supported'))
       }
 
-      // fs.writeFile('infos_youtube.json', JSON.stringify(infos), 'utf-8', (err) => console.log(err))
+      // fs.writeFile('infos_vrt_encrypted.json', JSON.stringify(info), 'utf-8', err => console.log(err))
       // fs.writeFile('info.json', JSON.stringify(info), 'utf-8', err => console.error(err))
-      if (infos.length === 0) reject(new Error('error occurred'))
-      resolve(infos)
+      if (infos.length === 0) {
+        reject(new Error('error occurred'))
+      } else {
+        resolve(infos)
+      }
     })
   })
 }
@@ -72,6 +81,8 @@ const VrtHandler = (video) => {
   const AudioFormats = ['DASH audio']
   let formats = []
   for (let format of video.formats) {
+    console.log(format)
+    console.log(format.format_note)
     // eslint-disable-next-line camelcase
     let { ext, fps, filesize, format_note } = format
     if (VideoFormats.includes(format_note)) {
@@ -94,24 +105,27 @@ const VrtHandler = (video) => {
       })
     }
   }
-
-  return {
-    id: video.id,
-    title: video.title,
-    channel: null,
-    thumbnail: video.thumbnail,
-    date: null,
-    duration: video._duration_raw,
-    extractor: video.extractor_key,
-    progress: 0,
-    settings: {},
-    formats
+  if (formats.length !== 0) {
+    return {
+      id: video.id,
+      title: video.title,
+      channel: null,
+      thumbnail: video.thumbnail,
+      date: null,
+      duration: video._duration_raw,
+      extractor: video.extractor_key,
+      progress: 0,
+      settings: {},
+      formats
+    }
+  } else {
+    return null
   }
 }
 
 if (require.main === module) {
   const url =
-    'https://www.youtube.com/watch?v=3RYNThid23g'
+    'https://www.vrt.be/vrtnu/a-z/chernobyl/1/chernobyl-s1a2/'
   GetInfo(url)
     .then((res) => {
       console.log(res)
