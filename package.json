@@ -1,7 +1,10 @@
 {
   "name": "jaguardownloader",
   "version": "v0.3.0",
-  "author": "Ragnar Van den Broeck",
+  "author": {
+    "name": "Ragnar Van den Broeck",
+    "email": "ragnar.van.den.broeck@gmail.com"
+  },
   "description": "user-friendly gui for youtube-dl",
   "license": "MIT",
   "main": "./dist/electron/main.js",

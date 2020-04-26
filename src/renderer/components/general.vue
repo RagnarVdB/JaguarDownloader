@@ -32,7 +32,7 @@ export default {
       dialog.showOpenDialog({
         properties: ['openDirectory']
       }).then(dir => {
-        this.$emit('set-folder', dir.filePaths[0])
+        if (!dir.canceled) this.$emit('set-folder', dir.filePaths[0])
       })
     }
   }
