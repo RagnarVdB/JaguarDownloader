@@ -107,7 +107,6 @@ export default {
       if (this.status === '' || this.status === 'ready to download') {
         this.status = 'downloading ...'
         for (let video of this.videos) {
-          console.log(video.url, video.settings, this.folder)
           downloader(video.url, video.settings, this.folder, (status, progress) => {
             console.log(`${status}: ${progress}`)
             video.progress = progress
@@ -127,7 +126,6 @@ export default {
       // fs.writeFile('setting.json', JSON.stringify({...video.settings, id: video.id}), 'utf-8', err => console.log(err))
     },
     set_folder (dir) {
-      console.log(__static)
       this.folder = dir
     }
   }

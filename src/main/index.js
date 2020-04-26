@@ -23,7 +23,10 @@ function createWindow () {
     height: 650,
     useContentSize: true,
     width: 950,
-    icon: `static/favicon.png`
+    icon: `static/favicon.png`,
+    webPreferences: {
+      nodeIntegration: true
+    }
   })
 
   mainWindow.loadURL(winURL)

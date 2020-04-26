@@ -173,11 +173,4 @@ function getPerc (frame, fps, duration) {
   return Math.round(frame / (duration * fps) * 100)
 }
 
-// if (require.main === module) {
-//   const info = JSON.parse(fs.readFileSync('setting.json').toString())
-//   downloader('https://www.vrt.be/vrtnu/a-z/wat-zegt-de-wetenschap/2019-2020/wat-zegt-de-wetenschap-d20191230-s2019-2020a5/', info, 'C:/users/ragna/desktop', (status, progress) => {
-//     console.log(status, progress)
-//   })
-// }
-
 export default downloader

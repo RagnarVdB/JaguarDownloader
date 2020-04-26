@@ -31,10 +31,8 @@ export default {
     SetFolder () {
       dialog.showOpenDialog({
         properties: ['openDirectory']
-      }, (dir) => {
-        if (dir) {
-          this.$emit('set-folder', dir[0])
-        }
+      }).then(dir => {
+        this.$emit('set-folder', dir.filePaths[0])
       })
     }
   }
