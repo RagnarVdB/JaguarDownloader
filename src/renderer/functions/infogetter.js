@@ -9,7 +9,10 @@ const GetInfo = (url) => {
   return new Promise((resolve, reject) => {
     ytdl.getInfo(url, ['--yes-playlist'], (err, info) => {
       // console.log('info', info)
-      if (err) reject(err)
+      if (err) {
+        reject(new Error('This video may not be supported or something is wrong with your internet connection'))
+        return
+      }
       var infos = []
       if (Array.isArray(info) && info[0].extractor_key === 'Youtube') {
         for (let video of info) {
@@ -26,13 +29,14 @@ const GetInfo = (url) => {
           infos.push(formattedInfo)
         }
       } else {
-        reject(new Error('Site not supported'))
+        reject(new Error('This site is not supported'))
+        return
       }
 
       // fs.writeFile('infos_vrt_encrypted.json', JSON.stringify(info), 'utf-8', err => console.log(err))
       // fs.writeFile('info.json', JSON.stringify(info), 'utf-8', err => console.error(err))
       if (infos.length === 0) {
-        reject(new Error('error occurred'))
+        reject(new Error('This video is not available for download'))
       } else {
         resolve(infos)
       }

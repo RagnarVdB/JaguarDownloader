@@ -51,8 +51,21 @@ export default {
   created: function () {
     urllib.request('https://jaguardownloader.netlify.app/version.json')
       .then(result => {
+        const versionCompare = (v1, v2) => {
+          const v1Array = v1.split('.')
+          const v2Array = v2.split('.')
+          let larger = false
+          for (let i = Math.max(v1Array.length, v2Array.length); i--; 0) {
+            if (v2Array[i] > v1Array[i]) {
+              larger = true
+            } else {
+              larger = false
+            }
+          }
+          return larger
+        }
         let data = JSON.parse(result.data.toString())
-        if (data.version > this.version) {
+        if (versionCompare(String(this.version), String(data.version))) {
           this.update = true
         }
       })

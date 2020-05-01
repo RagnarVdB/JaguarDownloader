@@ -18,7 +18,7 @@
       </div>
     </form>
     <div id='invalid'>
-      <p>Something went wrong! Check your internet connection or the url.</p>
+      <p>{{ errorText }}</p>
     </div>
     <div id='playlist'>
       <p>Playlist detected! Do you want to download the entire playlist?</p>
@@ -41,7 +41,8 @@ export default {
     return {
       url_playlist: '',
       videos: [],
-      url: ''
+      url: '',
+      errorText: ''
     }
   },
   methods: {
@@ -102,6 +103,7 @@ export default {
         .catch(err => {
           console.error(err)
           this.invalid(false)
+          this.errorText = err.message
           animation.style.display = 'none'
         })
     },

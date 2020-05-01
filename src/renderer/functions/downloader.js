@@ -24,7 +24,6 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
       let finishedFirst = false
       let finishedSecond = false
       const firstStream = spawn(ytdlPath, ['--newline', '-f', info.format[0].id, '--output', firstStreamName, url])
-      console.log((ytdlPath, ['--newline', '-f', info.format[0].id, '--output', firstStreamName, url]))
       firstStream.stdout.on('data', data => {
         if (data.includes('[download]') && data.includes('%')) {
           const progressString = String(data).split(' ').filter(el => el.includes('%'))[0]
@@ -50,8 +49,6 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
 
       if (doubleStream) {
         const secondStream = spawn(ytdlPath, ['--newline', '-f', info.format[1].id, '--output', secondStreamName, url])
-        console.log(ytdlPath, ['--newline', '-f', info.format[1].id, '--output', secondStreamName, url])
-
         secondStream.stderr.on('data', data => {
           console.log(`stderr: ${data}`)
         })
@@ -86,11 +83,7 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
             : (doubleStream) ? ['-i', firstStreamName, '-i', secondStreamName, '-codec', 'copy', filePath]
               : (needsConvert) ? ['-i', firstStreamName, filePath]
                 : ['-i', firstStreamName, '-codec', 'copy', filePath]
-        console.log(opts)
-
         const cmd = spawn(ffmpegPath, opts)
-        console.log(ffmpegPath, opts)
-
         cmd.stdout.on('data', data => {
           console.log(`stdout: ${data}`)
         })
