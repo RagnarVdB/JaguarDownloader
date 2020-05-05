@@ -26,10 +26,12 @@ import settings from './components/settings.vue'
 import general from './components/general.vue'
 import downloader from './functions/downloader'
 
-const urllib = require('urllib')
-const os = require('os')
-const path = require('path')
-const { dialog } = require('electron').remote
+import { spawn } from 'child_process'
+import urllib from 'urllib'
+import os from 'os'
+import path from 'path'
+import { dialog } from 'electron'
+import { getYtdlBinary, setYtdlBinary } from 'youtube-dl'
 
 export default {
   name: 'App',
@@ -44,7 +46,7 @@ export default {
       folder: path.join(os.homedir(), 'downloads'),
       current: '', // currently selected video
       status: '',
-      version: 0.3,
+      version: '0.3.1',
       update: false
     }
   },
@@ -72,6 +74,17 @@ export default {
       .catch(function (err) {
         console.error(err)
       })
+    // Try to update Youtube-dl binary
+    if (!getYtdlBinary().includes('unpacked')) {
+      setYtdlBinary(
+        getYtdlBinary().replace('app.asar', 'app.asar.unpacked')
+      )
+    }
+    const ytdlPath = getYtdlBinary()
+    const update = spawn(ytdlPath, ['-U'])
+    update.stdout.on('data', msg => {
+      console.log(String(msg))
+    })
   },
   methods: {
     changeCurrent (video) {
