@@ -58,16 +58,19 @@ export default {
           const v2Array = v2.split('.')
           let larger = false
           for (let i = Math.max(v1Array.length, v2Array.length); i--; 0) {
+            console.log(v2Array[i] > v1Array[i])
             if (v2Array[i] > v1Array[i]) {
               larger = true
-            } else {
+            } else if (v2Array[i] < v1Array[i]) {
               larger = false
             }
           }
           return larger
         }
         let data = JSON.parse(result.data.toString())
+        console.log(data.version)
         if (versionCompare(String(this.version), String(data.version))) {
+          console.log('update')
           this.update = true
         }
       })
