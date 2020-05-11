@@ -1,7 +1,7 @@
 'use strict'
 
 const ytdl = require('youtube-dl')
-// const fs = require('fs')
+const fs = require('fs')
 if (!ytdl.getYtdlBinary().includes('unpacked')) {
   ytdl.setYtdlBinary(
     ytdl.getYtdlBinary().replace('app.asar', 'app.asar.unpacked')
@@ -36,7 +36,7 @@ const GetInfo = (url) => {
         return
       }
 
-      // fs.writeFile('infos_vrt_encrypted.json', JSON.stringify(info), 'utf-8', err => console.log(err))
+      fs.writeFile('infos_vrt_encrypted.json', JSON.stringify(info), 'utf-8', err => console.log(err))
       // fs.writeFile('info.json', JSON.stringify(info), 'utf-8', err => console.error(err))
       if (infos.length === 0) {
         reject(new Error('This video is not available for download'))
@@ -84,31 +84,34 @@ const YoutubeHandler = (video) => {
 }
 
 const VrtHandler = (video) => {
-  const VideoFormats = ['DASH video']
-  const AudioFormats = ['DASH audio']
+  const VideoExtensions = ['mp4', 'mkv']
+  const AudioExtensions = ['mp3', 'm4a']
   let formats = []
   for (let format of video.formats) {
     console.log(format)
     console.log(format.format_note)
     // eslint-disable-next-line camelcase
-    let { ext, fps, filesize, format_note } = format
-    if (VideoFormats.includes(format_note)) {
+    const { ext, fps, filesize, format_note } = format
+    const type = (format.vcodec !== 'none' && format.acodec !== 'none') ? 'both'
+      : (format.vcodec !== 'none') ? 'video'
+        : 'audio'
+    if (VideoExtensions.includes(ext)) {
       formats.push({
         format_note: String(format.height) + 'p',
         ext,
         fps,
         id: format.format_id,
         filesize,
-        type: 'video'
+        type
       })
-    } else if (AudioFormats.includes(format_note)) {
+    } else if (AudioExtensions.includes(ext)) {
       formats.push({
         format_note,
         ext,
         fps,
         id: format.format_id.split(' ')[0],
         filesize,
-        type: 'audio'
+        type
       })
     }
   }

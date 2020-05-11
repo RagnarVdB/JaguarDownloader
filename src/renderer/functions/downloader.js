@@ -29,6 +29,8 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
           const progressString = String(data).split(' ').filter(el => el.includes('%'))[0]
           const perc = progressString.slice(0, progressString.length - 1)
           progressCallback('downloading', Math.round(perc))
+        } else {
+          progressCallback('downloading', 'indeterminate')
         }
       })
 
@@ -95,7 +97,7 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
             progressCallback('merging/converting', perc)
           } else {
             // progress cannot be determined
-            progressCallback('converting', 40)
+            progressCallback('converting', 'indeterminate')
           }
         })
 

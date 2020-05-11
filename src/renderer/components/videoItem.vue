@@ -3,13 +3,13 @@
     id="item"
     tabindex="-1"
     @focus="$emit('current', video)"
-    v-bind:class="{ selected: video.id === current}"
+    v-bind:class="{ selected: video.id === current }"
   >
     <div id="title">
       <p>{{ video.title }}</p>
     </div>
     <div id="progress">
-      <div :style="{width: video.progress + '%'}" />
+      <div :style="{width: video.progress + '%'}" v-bind:class="{ indeterminate: video.progress === 'indeterminate' }" />
     </div>
     <p id="ext">
       {{ video.settings.ext }}
@@ -68,12 +68,33 @@ export default {
     background-color: var(--main);
     border-radius: 13px;
     margin-left: 15px;
+    overflow: hidden;
   }
   #progress > div{
     background-color: #3869DC;
     height: 100%;
     border-radius: 13px;
   }
+  /* Enable class when progress is indeterminate */
+  #progress > .indeterminate {
+    width: 100% !important ;
+    animation: indeterminateAnimation 2s infinite linear;
+    transform-origin: 0% 50%;
+  }
+
+  @keyframes indeterminateAnimation {
+    0% {
+      transform:  translateX(0) scaleX(0);
+    }
+    40% {
+      transform:  translateX(0) scaleX(0.4);
+    }
+    100% {
+      transform:  translateX(100%);
+    }
+  }
+
+
   #quality, #ext{
     margin-right: 15px;
     width: 60px;
