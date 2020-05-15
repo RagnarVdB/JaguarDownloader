@@ -1,7 +1,7 @@
 'use strict'
 
 const ytdl = require('youtube-dl')
-const fs = require('fs')
+// const fs = require('fs')
 if (!ytdl.getYtdlBinary().includes('unpacked')) {
   ytdl.setYtdlBinary(
     ytdl.getYtdlBinary().replace('app.asar', 'app.asar.unpacked')
@@ -36,7 +36,7 @@ const GetInfo = (url) => {
         return
       }
 
-      fs.writeFile('infos_vrt_encrypted.json', JSON.stringify(info), 'utf-8', err => console.log(err))
+      // fs.writeFile('infos_vrt_encrypted.json', JSON.stringify(info), 'utf-8', err => console.log(err))
       // fs.writeFile('info.json', JSON.stringify(info), 'utf-8', err => console.error(err))
       if (infos.length === 0) {
         reject(new Error('This video is not available for download'))

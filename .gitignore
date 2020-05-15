@@ -12,3 +12,4 @@ builds
 .vscode
 design
 testing
+tests/

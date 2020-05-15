@@ -21,6 +21,7 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
 
   const download = () => {
     return new Promise((resolve, reject) => {
+      let progressErr = false
       let finishedFirst = false
       let finishedSecond = false
       const firstStream = spawn(ytdlPath, ['--newline', '-f', info.format[0].id, '--output', firstStreamName, url])
@@ -30,12 +31,22 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
           const perc = progressString.slice(0, progressString.length - 1)
           progressCallback('downloading', Math.round(perc))
         } else {
-          progressCallback('downloading', 'indeterminate')
+          if (!progressErr) {
+            progressCallback('downloading', 'indeterminate')
+          }
         }
       })
 
       firstStream.stderr.on('data', data => {
         console.log(`stderr: ${data}`)
+        if (data.includes('frame=') && info.format[0].fps && info.duration) {
+          const frame = parseOutput(String(data))
+          const perc = getPerc(frame, info.format[0].fps, info.duration)
+          console.log(frame, perc)
+          progressCallback('downloading', perc)
+        } else {
+          progressErr = false
+        }
       })
 
       firstStream.on('error', (error) => {
@@ -92,8 +103,10 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
 
         cmd.stderr.on('data', data => {
           if (info.format[0].fps && info.duration) {
+            console.log(String(data))
             const frame = parseOutput(String(data))
-            const perc = getPerc(frame, info.format[0].fps, info.duration)
+            console.log('frame: ', frame)
+            const perc = (frame !== 'indeterminate') ? getPerc(frame, info.format[0].fps, info.duration) : 'indeterminate'
             progressCallback('merging/converting', perc)
           } else {
             // progress cannot be determined
@@ -158,10 +171,16 @@ function downloader (url, info, savePath, progressCallback, errorCallback) {
 }
 
 function parseOutput (output) {
-  const splitted = output.split(' ').filter(el => (el !== ''))
-  const frame = splitted[splitted.indexOf('frame=') + 1]
-  return (!isNaN(frame)) ? frame
-    : 0
+  const frameString = output.slice(output.indexOf('frame=') + 6, output.length)
+  const items = frameString.split(' ')
+  let frame = 'indeterminate'
+  for (let item of items) {
+    if (Number(item) !== 0 && !isNaN(item)) {
+      frame = Number(item)
+      break
+    }
+  }
+  return frame
 }
 
 function getPerc (frame, fps, duration) {

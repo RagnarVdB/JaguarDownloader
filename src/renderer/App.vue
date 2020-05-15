@@ -46,7 +46,7 @@ export default {
       folder: path.join(os.homedir(), 'downloads'),
       current: '', // currently selected video
       status: '',
-      version: '0.3.1',
+      version: '0.3.2',
       update: false
     }
   },
