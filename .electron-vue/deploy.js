@@ -25,8 +25,6 @@ const req = request.post('https://api.anonfile.com/upload', (err, resp, body) =>
       "code": "https://github.com/RagnarVdB/JaguarDownloader/archive/master.zip"
     }`
     fs.writeFileSync(path.join(sitePath, 'links.js'), links)
-      }
-    })
 
     // push to github
     exec(`cd ${sitePath} && git add . && git commit -m "version ${version}" && git push`, (error, stdout, stderr) => {
@@ -37,5 +35,7 @@ const req = request.post('https://api.anonfile.com/upload', (err, resp, body) =>
       console.log(`stdout: ${stdout}`)
       console.error(`stderr: ${stderr}`)
     })
+  }
+})
 const form = req.form()
 form.append('file', fs.createReadStream(build))
