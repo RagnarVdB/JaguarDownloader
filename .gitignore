@@ -13,3 +13,5 @@ builds
 design
 testing
 tests/
+src/client_id.txt
+src/client_secret.txt

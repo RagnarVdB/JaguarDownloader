@@ -63,11 +63,13 @@
       </div>
       <p class="tooltiptext"></p>
     </form>
-    <form
+    <metadata 
       v-if="video.settings.tag && type === 'audio'"
       id="tags"
-    >
-      <div
+      :video="video"        
+      @update-settings="(data) => {$emit('update-settings', data)}"
+    />
+      <!-- <div
         v-for="el in ['title', 'artist', 'album', 'year', 'genre', 'album artist' ]"
         :key="el"
       >
@@ -76,8 +78,7 @@
           v-model="video.settings.tags[el]"
           type="text"
         >
-      </div>
-    </form>
+      </div> -->
     <div
       v-if="this.video.settings.convert"
       id="convert"
@@ -88,8 +89,12 @@
 </template>
 
 <script>
+import Metadata from './metadata.vue'
 export default {
   name: 'Setting',
+  components: {
+    Metadata
+  },
   props: ['video'],
   computed: {
     type: function () {
@@ -129,14 +134,6 @@ export default {
       },
       set (val) {
         this.$emit('update-settings', {id: this.video.id, tag: val})
-      }
-    },
-    tags: {
-      get () {
-        return this.video.settings.tags
-      },
-      set (val) {
-        this.$emit('update-settings', {id: this.video.id, tags: val})
       }
     },
     format () {
@@ -283,24 +280,6 @@ p {
   border: none;
   background-color: black;
   width: 20px;
-}
-#tags{
-  display: flex;
-  width: 100%;
-  align-content: flex-start;
-  height: 100%;
-  flex-flow: row wrap;
-  justify-content: space-evenly;
-  margin-top: 20px;
-}
-#tags div {
-  width: 40%;
-  height: auto
-}
-#tags div input{
-  border: none;
-  background-color: black;
-  width: 100%;
 }
 
 .info{
