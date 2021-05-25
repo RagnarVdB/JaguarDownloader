@@ -25,13 +25,12 @@ import list from './components/list.vue'
 import settings from './components/settings.vue'
 import general from './components/general.vue'
 import downloader from './functions/downloader'
-
 import { spawn } from 'child_process'
 import urllib from 'urllib'
 import os from 'os'
 import path from 'path'
-import { dialog } from 'electron'
 import { getYtdlBinary, setYtdlBinary } from 'youtube-dl'
+const { dialog } = require('electron').remote
 
 export default {
   name: 'App',

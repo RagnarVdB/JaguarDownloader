@@ -63,11 +63,13 @@
       </div>
       <p class="tooltiptext"></p>
     </form>
-    <form
+    <metadata 
       v-if="video.settings.tag && type === 'audio'"
       id="tags"
-    >
-      <div
+      :video="video"        
+      @update-settings="(data) => {$emit('update-settings', data)}"
+    />
+      <!-- <div
         v-for="el in ['title', 'artist', 'album', 'year', 'genre', 'album artist' ]"
         :key="el"
       >
@@ -76,8 +78,7 @@
           v-model="video.settings.tags[el]"
           type="text"
         >
-      </div>
-    </form>
+      </div> -->
     <div
       v-if="this.video.settings.convert"
       id="convert"
@@ -88,8 +89,12 @@
 </template>
 
 <script>
+import Metadata from './metadata.vue'
 export default {
   name: 'Setting',
+  components: {
+    Metadata
+  },
   props: ['video'],
   computed: {
     type: function () {
@@ -131,14 +136,6 @@ export default {
         this.$emit('update-settings', {id: this.video.id, tag: val})
       }
     },
-    tags: {
-      get () {
-        return this.video.settings.tags
-      },
-      set (val) {
-        this.$emit('update-settings', {id: this.video.id, tags: val})
-      }
-    },
     format () {
       return [this.ext, this.resolution]
     }
@@ -154,52 +151,6 @@ export default {
   },
   methods: {
     formatter () {
-      /*
-      let formats = []
-      let convert = false
-      if (this.type === 'audio') {
-        // set audio format
-        let format
-        [ format, convert ] = this.GetAudio(this.ext)
-        formats.push(format)
-      } else {
-        // set video format
-        let FormatWebm
-        let FormatMp4
-        for (let format of this.video.formats) {
-          if (format.ext === 'webm' && format.format_note === this.video.settings.quality) {
-            FormatWebm = format
-          } else if (format.ext === 'mp4' && format.format_note === this.video.settings.quality) {
-            FormatMp4 = format
-          }
-        }
-        if (this.ext === 'mp4') {
-          if (FormatMp4) {
-            formats.push(FormatMp4)
-            if (FormatMp4.type !== 'both') {
-              formats.push(this.GetAudio('mp4'))
-            }
-            convert = false
-          } else {
-            formats.push(FormatWebm)
-            convert = true
-            formats.push(this.GetAudio('webm')[0])
-            // set audio format
-          }
-        } else if (this.ext === 'mkv') {
-          if (FormatWebm) {
-            formats.push(FormatWebm)
-            formats.push(this.GetAudio('webm')[0])
-            convert = false
-          } else {
-            formats.push(FormatMp4)
-          }
-        }
-      }
-      this.$emit('update-settings', {id: this.video.id, format: formats, type: this.type})
-      this.$emit('update-format')
-      this.$emit('update-settings', {id: this.video.id, convert: convert})
-      */
       const preferred = {
         mkv: ['webm', 'mkv'],
         mp4: ['mp4', 'm4a'],
@@ -267,24 +218,6 @@ export default {
       this.$emit('update-format')
       this.$emit('update-settings', {id: this.video.id, convert: convert})
     },
-    // GetAudio (PrefExt) {
-    //   let FormatCorrectExt
-    //   let FormatIncorrectExt
-    //   for (let format of this.video.formats) {
-    //     if (format.type === 'audio') {
-    //       if (format.ext === PrefExt) {
-    //         FormatCorrectExt = format
-    //       } else {
-    //         FormatIncorrectExt = format
-    //       }
-    //     }
-    //   }
-    //   if (FormatCorrectExt) {
-    //     return [FormatCorrectExt, false]
-    //   } else {
-    //     return [FormatIncorrectExt, true]
-    //   }
-    // },
     over (id) {
       document.getElementById(id).style.display = 'block'
     },
@@ -339,7 +272,7 @@ p {
   margin-top: 20px;
 }
 #checkbox_tags{
-  display: none !important; /* Set to none until feature is ready for deployment */
+  display: flex !important; /* Set to none until feature is ready for deployment */
   flex-direction: row;
   justify-content: flex-start;
 }
@@ -347,24 +280,6 @@ p {
   border: none;
   background-color: black;
   width: 20px;
-}
-#tags{
-  display: flex;
-  width: 100%;
-  align-content: flex-start;
-  height: 100%;
-  flex-flow: row wrap;
-  justify-content: space-evenly;
-  margin-top: 20px;
-}
-#tags div {
-  width: 40%;
-  height: auto
-}
-#tags div input{
-  border: none;
-  background-color: black;
-  width: 100%;
 }
 
 .info{
